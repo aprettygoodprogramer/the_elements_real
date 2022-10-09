@@ -6,7 +6,7 @@ wall collison
 guy put at botom of screen when transion from village to grass land
 """
 
-
+#if you see this then it pushed
 #imports pygame
 import pygame
 #imports 
