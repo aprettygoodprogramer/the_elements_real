@@ -6,7 +6,6 @@ wall collison
 guy put at botom of screen when transion from village to grass land
 """
 
-#if you see this then it pushed
 #imports pygame
 import pygame
 #imports 
@@ -478,9 +477,10 @@ while running == True:
         if in_battle == False:
             #scales the player size
             guy = pygame.transform.scale(guy,(100,100))
-            if curr_world == "grass":
+            if curr_world == "grass1" or curr_world == "grass2" or curr_world == "grass3":
                 show_grass()
-                npcs_on_screen=[ npc("water <--", sing, 200, 500, 1),npc("fire -->", sing, 700, 500,1)]
+                if curr_world == "grass1":
+                    npcs_on_screen=[ npc("water <--", sing, 200, 500, 1),npc("fire -->", sing, 700, 500,1)]
             else:
                 screen.fill((color_for_map))
             fps_counter = smallfont.render("fps:" + str(round(clock.get_fps())), False,  "black")
@@ -571,66 +571,96 @@ while running == True:
             #right grass
             if boss_room == False:
                 #this is the loject for swichiing worlds
-                if player_x >= 900 and curr_world == "grass":
-                    color_for_map = "red"
-                    curr_world = "fire"
+                if player_x >= 900 and curr_world == "grass1":
+                    color_for_map = "dark green"
+                    curr_world = "grass3"
                     player_x = 100
                     enemys_on_map = []
                     shop_on_screen = []
 
                     npcs_on_screen = [npc("fire monster:   dont kill me pls take this", fire_good_guy, 850, 50 , 3) ]
                 #left grass
-                if player_x <= 0 and curr_world == "grass":
-                    curr_world = "water"
-                    color_for_map = "blue"
+                if player_x <= 0 and curr_world == "grass1":
+                    curr_world = "grass2"
+                    color_for_map = "dark green"
                     player_x = 850
                     enemys_on_map = []
                     npcs_on_screen = []
                     shop_on_screen = []
                 #right water
-                if player_x >= 900 and curr_world == "water":
-                    curr_world = "grass"
+                if player_x >= 900 and curr_world == "grass2":
+                    curr_world = "grass1"
                     color_for_map = "dark green"
                     player_x = 100
                     enemys_on_map = []
                     npcs_on_screen = []
                     shop_on_screen = []
                 #left water
-                if player_x <= 0 and curr_world == "water":
+                if player_x <= 0 and curr_world == "grass2":
                     player_x+=player_speed
                 #left fire
-                if player_x >= 900 and curr_world == "fire":
+                if player_x >= 900 and curr_world == "grass3":
                     player_x-=player_speed
-                if player_x <= 0 and curr_world == "fire":
-                    curr_world = "grass"
+                if player_x <= 0 and curr_world == "grass3":
+                    curr_world = "grass1"
                     color_for_map = "dark green"
                     player_x = 850
                     enemys_on_map = []
                     npcs_on_screen = []
                     shop_on_screen = []
-                if player_y >= 900 and curr_world!="town":
+                if player_y >= 900 and curr_world!="town" and curr_world!= "fire":
                         player_y-=player_speed
                         print("down")
                 if player_y >= 900 and curr_world == "town":
-                    curr_world = "grass"
+                    curr_world = "grass1"
                     color_for_map = "dark green"
                     player_y = 900
                     enemys_on_map = []
                     npcs_on_screen = []
                     shop_on_screen = []
                     #up
-                if player_y <= 0 and curr_world!="grass":
+                if player_y <= 0 and curr_world!="grass3" and curr_world!="grass1"  and curr_world!= "grass2":
                         player_y+=player_speed
-                        print("up")
+                        print("up !@#$%")
 
-                if curr_world!="grass" and curr_world!= "town":
+                if curr_world!="grass" and curr_world!= "town" and curr_world!="grass3" and curr_world!="grass1" and curr_world!= "grass2":
                     if player_y <= 0:
                             player_y+=player_speed
-                            print("up")
-                
+                            print("up 245345-")
+
+                if curr_world == "grass3" and player_y <= 0:
+                    curr_world = "fire"
+                    color_for_map = "red"
+                    print("fire time")
+                    enemys_on_map = []
+                    npcs_on_screen = []
+                    shop_on_screen = []
+                if curr_world == "grass2" and player_y <= 0:
+                    curr_world = "water"
+                    color_for_map = "blue"
+                    print("fire time")
+                    enemys_on_map = []
+                    npcs_on_screen = []
+                    shop_on_screen = []
+                    player_x = 500
+                    player_y = 500
+
+                if curr_world == "fire" and player_y >= 900:
+                    curr_world = "grass3"
+                    color_for_map = "dark green"
+                    print("It SHOULD WORK")
+                    player_y = 800
+                    enemys_on_map = []
+                    npcs_on_screen = []
+                    shop_on_screen = []
+                if curr_world == "water" and player_y >= 890:
+                    curr_world = "grass2" 
+                    enemys_on_map = []
+                    npcs_on_screen = []
+                    shop_on_screen = []
 
                 else:
-                    if player_y <= 0:
+                    if player_y <= 0 and curr_world!="fire":
                             #player_y+=player_speed
                             #print("up")
                             curr_world  = "town"
@@ -638,7 +668,7 @@ while running == True:
                             enemys_on_map = []
                             shop_on_screen = [shop(300, 500, old_man, item("armor tear 1", 10, 3), item("armor tear 2", 30, 4), item("sheild", 50, 5))]
                             npcs_on_screen = [npc("jake: 1+1=11", old_man, 500, 500, 1), npc("old man: Hi you must kill the 3 headed hydra that destroyed this village you can do that by killing all three dragons kill all the types to get the dragons take this staff to kill them", old_man, 700, 300, 2), npc("rando guy: I big brain", old_man, 300, 300, 1)]
-                            
+                            player_y = 500
                     
 
                 #right fire
@@ -650,9 +680,9 @@ while running == True:
                         player_y-=player_speed
                         print("down")
                     #up
-                if player_y <= 0:
+                if player_y <= 0 and curr_world!="grass3":
                         player_y+=player_speed
-                        print("up")
+                        print("up 1+1=11")
                 if player_x >= 900:
                     player_x-=player_speed
                 if player_x <= 0:
@@ -681,7 +711,7 @@ while running == True:
                     if curr_world == "water":
                         enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, test_enemy2))
                     
-                    elif curr_world == "grass":
+                    elif curr_world == "grass1" or curr_world == "grass2" or curr_world == "grass3":
                         enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, test_enemy3))
                     elif curr_world == "fire":
                         enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, test_enemy))
@@ -758,7 +788,7 @@ while running == True:
                         curr_in_battle_enemy = enemy_in_battle("water", 10, test_enemy2, enemy_mx_hp)
                     elif curr_world == "fire":
                         curr_in_battle_enemy = enemy_in_battle("fire",  10, test_enemy, enemy_mx_hp)
-                    elif curr_world == "grass":
+                    elif curr_world == "grass1" or curr_world == "grass2" or curr_world == "grass3":
                         curr_in_battle_enemy = enemy_in_battle("grass", 10, enemy_in_battle_grass, enemy_mx_hp)
                     enemy_has_create = True
                 #changes the size
