@@ -577,8 +577,8 @@ while running == True:
                     player_x = 100
                     enemys_on_map = []
                     shop_on_screen = []
-
-                    npcs_on_screen = [npc("fire monster:   dont kill me pls take this", fire_good_guy, 850, 50 , 3) ]
+                    npcs_on_screen = []
+                    
                 #left grass
                 if player_x <= 0 and curr_world == "grass1":
                     curr_world = "grass2"
@@ -633,7 +633,7 @@ while running == True:
                     color_for_map = "red"
                     print("fire time")
                     enemys_on_map = []
-                    npcs_on_screen = []
+                    npcs_on_screen = [npc("fire monster:   dont kill me pls take this", fire_good_guy, 850, 50 , 3) ]
                     shop_on_screen = []
                 if curr_world == "grass2" and player_y <= 0:
                     curr_world = "water"
