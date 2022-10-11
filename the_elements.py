@@ -596,10 +596,10 @@ while running == True:
                     npcs_on_screen = []
                     shop_on_screen = []
                 #left water
-                if player_x <= 0 and curr_world == "grass2":
+                if player_x <= 0 and curr_world == "grass2" and curr_world != "endlesswoods":
                     player_x+=player_speed
                 #left fire
-                if player_x >= 900 and curr_world == "grass3":
+                if player_x >= 900 and curr_world == "grass3" and curr_world != "endlesswoods":
                     player_x-=player_speed
                 if player_x <= 0 and curr_world == "grass3":
                     curr_world = "grass1"
@@ -658,6 +658,21 @@ while running == True:
                     enemys_on_map = []
                     npcs_on_screen = []
                     shop_on_screen = []
+                if curr_world == "grass2" and player_x <= 50:
+                    curr_world = "endlesswoods"
+                    color_for_map = "dark green"
+                    enemys_on_map = []
+                    npcs_on_screen = []
+                    shop_on_screen = []
+                    player_x = 500
+                    print("H IIIIIIIII")
+                if curr_world == "endlesswoods" and player_x >= 1000:
+                    curr_world = "grass2" 
+                    enemys_on_map = []
+                    npcs_on_screen = []
+                    shop_on_screen = []
+                    player_x = 500
+                
 
                 else:
                     if player_y <= 0 and curr_world!="fire":
@@ -715,6 +730,8 @@ while running == True:
                         enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, test_enemy3))
                     elif curr_world == "fire":
                         enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, test_enemy))
+                    elif curr_world == "endlesswoods":
+                        enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, test_enemy3))
             #check if you should level up
             if xp >= xp_needed:
                 xp = 0
@@ -785,11 +802,13 @@ while running == True:
                 #makes the enemy
                 if enemy_has_create == False:
                     if curr_world == "water":
-                        curr_in_battle_enemy = enemy_in_battle("water", 10, test_enemy2, enemy_mx_hp)
+                        curr_in_battle_enemy = enemy_in_battle("water", 10, test_enemy2, 500)
                     elif curr_world == "fire":
-                        curr_in_battle_enemy = enemy_in_battle("fire",  10, test_enemy, enemy_mx_hp)
+                        curr_in_battle_enemy = enemy_in_battle("fire",  10, test_enemy, 250)
                     elif curr_world == "grass1" or curr_world == "grass2" or curr_world == "grass3":
-                        curr_in_battle_enemy = enemy_in_battle("grass", 10, enemy_in_battle_grass, enemy_mx_hp)
+                        curr_in_battle_enemy = enemy_in_battle("grass", 10, test_enemy3, 100)
+                    elif curr_world == "endlesswoods":
+                        curr_in_battle_enemy = enemy_in_battle("grass", 10, test_enemy3, enemy_mx_hp)
                     enemy_has_create = True
                 #changes the size
                 guy = pygame.transform.scale(guy,(500,500))
