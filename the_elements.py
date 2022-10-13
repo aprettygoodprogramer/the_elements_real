@@ -45,9 +45,9 @@ recharge = pygame.transform.scale(recharge,(100,100))
 old_man = pygame.image.load("old_man.png")
 old_man = pygame.transform.scale(old_man,(100,100))
 sing = pygame.image.load("sign_right_size.png")
-
+ice_monster = pygame.image.load("ice_monster.png")
 sing = pygame.transform.scale(sing, (100, 100))
-
+ice_monster = pygame.transform.scale(ice_monster, (100, 100))
 grass_x = [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900]
 
 grass_y = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 700, 700, 700, 700, 700, 700, 700, 700, 700, 700, 800, 800, 800, 800, 800, 800, 800, 800, 800, 800, 900, 900, 900, 900, 900, 900, 900, 900, 900, 900]
@@ -157,6 +157,7 @@ player_items = []
 gold = 50
 has_armor1 = False
 has_armor2 = False
+enemy_max_dam
 #class for the enemy ON THE MAP not in the battle
 #its a very basic class with all the basic stuff
 class enemy_on_map:
@@ -201,7 +202,7 @@ class enemy_in_battle:
     def __init__(self, element, damage, pic, max_hp):
         self.element = element
         
-        self.damge = damage
+        self.damage = damage
         self.pic = pic
         self.pic = pygame.transform.scale(self.pic,(500,500))
         self.max_hp = max_hp
@@ -216,6 +217,8 @@ class enemy_in_battle:
         self.curr_hp-=damageDone
     def get_element(self):
         return self.element
+    def get_damage(self):
+        return self.damage
 
 #a floor tile is a really simpl class
 #all irt needs is a x a y and if you can collide then it has a rect
@@ -665,15 +668,30 @@ while running == True:
                     npcs_on_screen = []
                     shop_on_screen = []
                     player_x = 500
-                    print("H IIIIIIIII")
                 if curr_world == "endlesswoods" and player_x >= 1000:
                     curr_world = "grass2" 
                     enemys_on_map = []
                     npcs_on_screen = []
                     shop_on_screen = []
                     player_x = 500
-                
-
+                if curr_world == "grass3" and player_y >= 890:
+                    curr_world = "moutain"
+                    color_for_map = "white"
+                    enemys_on_map = []
+                    npcs_on_screen = []
+                    shop_on_screen = []
+                    player_x = 500
+                    player_y = 500
+                    print("as;dlkfhaslkdj fhasd")
+                if curr_world == "moutain" and player_y <= 100:
+                    curr_world = "grass3"
+                    color_for_map = "dark green"
+                    player_y = 500
+                    player_x = 500
+                    enemys_on_map = []
+                    npcs_on_screen = []
+                    shop_on_screen = []
+                    print("ooookkkkkkkkkkkkkkkkkkkkkkkkkkke")
                 else:
                     if player_y <= 0 and curr_world!="fire":
                             #player_y+=player_speed
@@ -732,6 +750,8 @@ while running == True:
                         enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, test_enemy))
                     elif curr_world == "endlesswoods":
                         enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, test_enemy3))
+                    elif curr_world == "moutain":
+                        enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, ice_monster))
             #check if you should level up
             if xp >= xp_needed:
                 xp = 0
@@ -802,13 +822,15 @@ while running == True:
                 #makes the enemy
                 if enemy_has_create == False:
                     if curr_world == "water":
-                        curr_in_battle_enemy = enemy_in_battle("water", 10, test_enemy2, 500)
+                        curr_in_battle_enemy = enemy_in_battle("water", 15, test_enemy2, 250)
                     elif curr_world == "fire":
-                        curr_in_battle_enemy = enemy_in_battle("fire",  10, test_enemy, 250)
+                        curr_in_battle_enemy = enemy_in_battle("fire",  20, test_enemy, 500)
                     elif curr_world == "grass1" or curr_world == "grass2" or curr_world == "grass3":
                         curr_in_battle_enemy = enemy_in_battle("grass", 10, test_enemy3, 100)
                     elif curr_world == "endlesswoods":
-                        curr_in_battle_enemy = enemy_in_battle("grass", 10, test_enemy3, enemy_mx_hp)
+                        curr_in_battle_enemy = enemy_in_battle("grass", enemy_max_dam, test_enemy3, enemy_mx_hp)
+                    elif curr_world == "moutain":
+                        curr_in_battle_enemy = enemy_in_battle("grass", 13, ice_monster, 300)
                     enemy_has_create = True
                 #changes the size
                 guy = pygame.transform.scale(guy,(500,500))
@@ -875,7 +897,7 @@ while running == True:
                         curr_in_battle_enemy.do_damage(damage_done)
                 #enemy attack
                 if who_turn == "enemy" and can_attack == False:
-                    damage_done = random.randint(5, enemy_max_dam)
+                    damage_done = random.randint(5, curr_in_battle_enemy.get_damage())
                     print("fhlsadkfjhsadlkjfh asld kfjh")
                     for i in player_items:
                         if i.get_index() == 5 and random.randint(1, 10) == 1:
