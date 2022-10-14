@@ -48,6 +48,8 @@ sing = pygame.image.load("sign_right_size.png")
 ice_monster = pygame.image.load("ice_monster.png")
 sing = pygame.transform.scale(sing, (100, 100))
 ice_monster = pygame.transform.scale(ice_monster, (100, 100))
+catti_monster = pygame.image.load("catti_monster.png")
+catti_monster = pygame.transform.scale(catti_monster, (100, 100))
 grass_x = [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900]
 
 grass_y = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 700, 700, 700, 700, 700, 700, 700, 700, 700, 700, 800, 800, 800, 800, 800, 800, 800, 800, 800, 800, 900, 900, 900, 900, 900, 900, 900, 900, 900, 900]
@@ -682,7 +684,22 @@ while running == True:
                     shop_on_screen = []
                     player_x = 500
                     player_y = 500
-                    print("as;dlkfhaslkdj fhasd")
+                if curr_world == "grass3" and player_x >= 890:
+                    curr_world = "sand"
+                    color_for_map = "yellow"
+                    enemys_on_map = []
+                    npcs_on_screen = []
+                    shop_on_screen = []
+                    player_x = 500
+                    player_y = 500
+                if curr_world == "sand" and player_x <= 100:
+                    curr_world = "grass3"
+                    color_for_map = "dark green"
+                    player_y = 500
+                    player_x = 500
+                    enemys_on_map = []
+                    npcs_on_screen = []
+                    shop_on_screen = []
                 if curr_world == "moutain" and player_y <= 100:
                     curr_world = "grass3"
                     color_for_map = "dark green"
@@ -752,6 +769,8 @@ while running == True:
                         enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, test_enemy3))
                     elif curr_world == "moutain":
                         enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, ice_monster))
+                    elif curr_world == "sand":
+                        enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, catti_monster))
             #check if you should level up
             if xp >= xp_needed:
                 xp = 0
@@ -831,6 +850,8 @@ while running == True:
                         curr_in_battle_enemy = enemy_in_battle("grass", enemy_max_dam, test_enemy3, enemy_mx_hp)
                     elif curr_world == "moutain":
                         curr_in_battle_enemy = enemy_in_battle("grass", 13, ice_monster, 300)
+                    elif curr_world == "sand":
+                        curr_in_battle_enemy = enemy_in_battle("to be determined", 12, catti_monster, 200)
                     enemy_has_create = True
                 #changes the size
                 guy = pygame.transform.scale(guy,(500,500))
@@ -858,6 +879,8 @@ while running == True:
                         damage_done = damage/2
                         damage_done = round(damage_done)
                         curr_in_battle_enemy.do_damage(damage_done)
+                    else:
+                        curr_in_battle_enemy.do_damage(damage)
                     who_turn = "enemy"
                     can_attack = True
                     starttime = pygame.time.get_ticks()
@@ -879,10 +902,12 @@ while running == True:
                         damage_done = damage/2
                         damage_done = round(damage_done)
                         curr_in_battle_enemy.do_damage(damage_done)
+                    else:
+                        curr_in_battle_enemy.do_damage(damage)
                 #grass
                 if keys[pygame.K_3] and who_turn == "player" and can_attack == False :
-                    damge_done = 7
-                    curr_in_battle_enemy.do_damage(damge_done)
+
+
                     who_turn = "enemy"
                     can_attack = True
 
@@ -895,6 +920,8 @@ while running == True:
                         damage_done = damage/2
                         damage_done = round(damage_done)
                         curr_in_battle_enemy.do_damage(damage_done)
+                    else:
+                        curr_in_battle_enemy.do_damage(damage)
                 #enemy attack
                 if who_turn == "enemy" and can_attack == False:
                     damage_done = random.randint(5, curr_in_battle_enemy.get_damage())
