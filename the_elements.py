@@ -38,6 +38,8 @@ test_enemy3 = pygame.image.load("grass_monster_right_size.png")
 enemy_in_battle_grass = pygame.image.load("grass_monster_battle.png")
 guy = pygame.transform.scale(guy,(100,200))
 recharge = pygame.image.load("recharge.png")
+warrier = pygame.image.load("warrior.png")
+warrier = pygame.transform.scale(warrier, (100, 100))
 portal =  pygame.image.load("portal.png")
 stone_wall = pygame.image.load("stone.png")
 house_im = pygame.image.load("house.png")
@@ -108,7 +110,7 @@ xp_needed = 100
 #the amt of xp you curr have
 xp = 0
 #your current level
-level = 1
+level = 0
 #if the battle is over
 battle_over = False
 #if you have leveled up
@@ -156,10 +158,13 @@ place_for_house_y = [0, 600]
 npcs_on_screen = []
 enemy_mx_hp = 100
 player_items = [] 
-gold = 50
+gold = 0
 has_armor1 = False
 has_armor2 = False
-enemy_max_dam
+enemy_max_dam = 10
+fighttown1_entance_cordsx = [0, 100, 200, 300, 600, 700, 800, 900, 0, 100, 200, 300, 600, 700, 800, 900]
+fighttown1_entance_cordsy = [800, 800, 800, 800, 800, 800, 800, 800, 900, 900, 900, 900, 900, 900, 900, 900]
+entance_for_fight_town = []
 #class for the enemy ON THE MAP not in the battle
 #its a very basic class with all the basic stuff
 class enemy_on_map:
@@ -407,11 +412,18 @@ def show_grass():
 def make_house():
     for i in range(len(place_for_house_x)):
         houses.append(house(place_for_house_x[i], place_for_house_y[i], house_im, 400, 400))
+def make_entance_fight_town():
+    for i in range(len(fighttown1_entance_cordsx)):
+        entance_for_fight_town.append(floor_tile(fighttown1_entance_cordsx[i], fighttown1_entance_cordsy[i], False, stone_wall))
+make_entance_fight_town()
+
 make_house()
 def show_collide_house():
     for i in houses:
         i.display_house()
-
+def show_fight_town_entance():
+    for i in entance_for_fight_town:
+        i.display_tiles()
 #draws the blocks
 def show_boss_room():
     for i in boss_room_boxes:
@@ -433,6 +445,21 @@ def qust_give_npc():
 #it will check what side it does that by checking if 2 opsite side subtracked by eachother is less then 10 if it is its the amt we subtacted
 def collide_boss_room():
     for i in boss_room_boxes:
+        if i.get_box().colliderect(player_hitbox):
+            if abs(player_hitbox_rect.bottom - i.get_box().top) < 10:
+                print("you collided on the top")
+                return 1
+            if abs(player_hitbox_rect.top - i.get_box().bottom) < 10:
+                print("you collided on the bottom")
+                return 2
+            if abs(player_hitbox_rect.right - i.get_box().left) < 10:
+                print("you collided on the left")
+                return 3
+            if abs(player_hitbox_rect.left - i.get_box().right) < 10:
+                print("you collided on the left")
+                return 4
+def collide_with_wall():
+    for i in entance_for_fight_town:
         if i.get_box().colliderect(player_hitbox):
             if abs(player_hitbox_rect.bottom - i.get_box().top) < 10:
                 print("you collided on the top")
@@ -486,6 +513,11 @@ while running == True:
                 show_grass()
                 if curr_world == "grass1":
                     npcs_on_screen=[ npc("water <--", sing, 200, 500, 1),npc("fire -->", sing, 700, 500,1)]
+
+            elif curr_world == "fighttown1":
+                show_grass()
+                show_fight_town_entance()
+                print("dlfkhasdlfkjh")
             else:
                 screen.fill((color_for_map))
             fps_counter = smallfont.render("fps:" + str(round(clock.get_fps())), False,  "black")
@@ -554,7 +586,16 @@ while running == True:
                     player_x-=player_speed
                 if output == 4:
                     player_x+=player_speed
-  
+            if curr_world == "fighttown1":
+                output2 = collide_with_wall()
+                if output2 == 1:
+                    player_y-=player_speed
+                if output2 == 2:
+                    player_y+=player_speed
+                if output2 == 3:
+                    player_x-=player_speed
+                if output2 == 4:
+                    player_x+=player_speed
             #collison_with_boss_room()
             for i in player_items:
                 if i.get_index() == 1:
@@ -709,6 +750,45 @@ while running == True:
                     npcs_on_screen = []
                     shop_on_screen = []
                     print("ooookkkkkkkkkkkkkkkkkkkkkkkkkkke")
+                if curr_world == "grass2" and player_y >= 890:
+                    curr_world = "fighttown1"
+                    player_y = 500
+                    player_x = 500
+                    enemys_on_map = []
+                    if level <= 5:
+                        npcs_on_screen = [npc("gard: your not high enof level", old_man, 300, 700 , 1), npc("gard: your not high enof level", old_man, 600, 700 , 1)]
+                    else:
+                        npcs_on_screen = [npc("go on in", old_man, 300, 700 , 1), npc("go on in", old_man, 600, 700 , 1)]
+                    shop_on_screen = []
+                if curr_world == "fighttown1" and player_y <= 100:
+                    curr_world = "grass2" 
+                    enemys_on_map = []
+                    npcs_on_screen = []
+                    shop_on_screen = []
+                    player_y = 500
+                if curr_world == "fighttown1" and player_y >= 890 and level >= 5:
+                    curr_world = "fighttown2" 
+                    enemys_on_map = []
+                    npcs_on_screen = [npc("warrior: this town is great hu", warrier, 300, 700, 1), npc("warrior: Im a god at fighting", warrier, 800, 700, 1)]
+                    shop_on_screen = [shop(300, 500, warrier, item("ring of damage", 100, 6), item("ring of xp", 300, 7), item("ring of gold", 500, 8))]
+                    player_y = 500
+                    player_x = 500
+                    color_for_map = "gray"
+                if curr_world == "fighttown2" and player_y <= 51:
+                    curr_world = "fighttown1"
+                    player_y = 500
+                    player_x = 500
+                    enemys_on_map = []
+                    if level <= 5:
+                        npcs_on_screen = [npc("gard: your not high enof level", old_man, 300, 700 , 1), npc("gard: your not high enof level", old_man, 600, 700 , 1)]
+                    else:
+                        npcs_on_screen = [npc("go on in", old_man, 300, 700 , 1), npc("go on in", old_man, 600, 700 , 1)]
+                if player_x >= 900:
+                    player_x-=player_speed
+                if player_x <= 0:
+                    player_x+=player_speed
+
+
                 else:
                     if player_y <= 0 and curr_world!="fire":
                             #player_y+=player_speed
@@ -771,6 +851,7 @@ while running == True:
                         enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, ice_monster))
                     elif curr_world == "sand":
                         enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, catti_monster))
+            print(curr_world)
             #check if you should level up
             if xp >= xp_needed:
                 xp = 0
@@ -913,13 +994,28 @@ while running == True:
 
                     starttime = pygame.time.get_ticks()
                     if curr_in_battle_enemy.get_element() == "water":
-                        curr_in_battle_enemy.do_damage(damage*2)
+                        for i in player_items:
+                            if i.get_index() == 6:
+                          
+                                curr_in_battle_enemy.do_damage(damage*2+5)
+                            else:
+                                curr_in_battle_enemy.do_damage(damage*2)
                     elif curr_in_battle_enemy.get_element() == "grass":
-                        curr_in_battle_enemy.do_damage(damage)
+                        for i in player_items:
+                            if i.get_index() == 6:
+                                curr_in_battle_enemy.do_damage(damage+5)
+                            else:
+                                curr_in_battle_enemy.do_damage(damage)
                     elif curr_in_battle_enemy.get_element() == "fire":
-                        damage_done = damage/2
-                        damage_done = round(damage_done)
-                        curr_in_battle_enemy.do_damage(damage_done)
+                        for i in player_items:
+                            if i.get_index() == 6:
+                                damage_done = damage/2
+                                damage_done = round(damage_done)
+                                curr_in_battle_enemy.do_damage(damage_done+5)
+                            else:
+                                damage_done = damage/2
+                                damage_done = round(damage_done)
+                                curr_in_battle_enemy.do_damage(damage_done)
                     else:
                         curr_in_battle_enemy.do_damage(damage)
                 #enemy attack
@@ -964,6 +1060,11 @@ while running == True:
 
                             xp_added = random.randint(20, 30)
                             gold_added = random.randint(1, 15)
+                            for i in player_items:
+                                if i.get_index() == 7:
+                                    xp_added +=10
+                                elif i.get_index() == 8:
+                                    gold_added+=10
                             xp+=xp_added
                             gold += gold_added
                             has_added = True
