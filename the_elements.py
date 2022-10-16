@@ -36,6 +36,7 @@ fire_good_guy = pygame.image.load("good_fire_monster.png")
 fire_good_guy = pygame.transform.scale(fire_good_guy,(100,100))
 test_enemy3 = pygame.image.load("grass_monster_right_size.png")
 enemy_in_battle_grass = pygame.image.load("grass_monster_battle.png")
+castle = pygame.image.load("castle.png")
 guy = pygame.transform.scale(guy,(100,200))
 recharge = pygame.image.load("recharge.png")
 warrier = pygame.image.load("warrior.png")
@@ -110,7 +111,7 @@ xp_needed = 100
 #the amt of xp you curr have
 xp = 0
 #your current level
-level = 0
+level = 323
 #if the battle is over
 battle_over = False
 #if you have leveled up
@@ -165,6 +166,7 @@ enemy_max_dam = 10
 fighttown1_entance_cordsx = [0, 100, 200, 300, 600, 700, 800, 900, 0, 100, 200, 300, 600, 700, 800, 900]
 fighttown1_entance_cordsy = [800, 800, 800, 800, 800, 800, 800, 800, 900, 900, 900, 900, 900, 900, 900, 900]
 entance_for_fight_town = []
+housed = []
 #class for the enemy ON THE MAP not in the battle
 #its a very basic class with all the basic stuff
 class enemy_on_map:
@@ -711,7 +713,7 @@ while running == True:
                     npcs_on_screen = []
                     shop_on_screen = []
                     player_x = 500
-                if curr_world == "endlesswoods" and player_x >= 1000:
+                if curr_world == "endlesswoods" and player_x >= 899:
                     curr_world = "grass2" 
                     enemys_on_map = []
                     npcs_on_screen = []
@@ -773,12 +775,15 @@ while running == True:
                     shop_on_screen = [shop(300, 500, warrier, item("ring of damage", 100, 6), item("ring of xp", 300, 7), item("ring of gold", 500, 8))]
                     player_y = 500
                     player_x = 500
+                    housed = [house(700, 500, castle, 300, 300)]
                     color_for_map = "gray"
                 if curr_world == "fighttown2" and player_y <= 51:
                     curr_world = "fighttown1"
                     player_y = 500
                     player_x = 500
+                    housed = []
                     enemys_on_map = []
+
                     if level <= 5:
                         npcs_on_screen = [npc("gard: your not high enof level", old_man, 300, 700 , 1), npc("gard: your not high enof level", old_man, 600, 700 , 1)]
                     else:
@@ -824,6 +829,8 @@ while running == True:
 
             for i in enemys_on_map:
                     i.display()
+            for i in housed:
+                i.display_house()
             #player hitbox
             player_hitbox = (player_x, player_y, 100, 100)
             player_hitbox_rect = pygame.Rect(player_hitbox)
