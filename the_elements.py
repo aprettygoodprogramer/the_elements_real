@@ -28,6 +28,7 @@ screen = pygame.display.set_mode((1000, 1000))
 #gets all the images
 guy = pygame.image.load("wizard_f1.png")
 grass = pygame.image.load("grass_right_size.png")
+dark_fountain = pygame.image.load("fountain.png")
 grass = pygame.transform.scale(grass,(100,100))
 guy.set_colorkey ("white")
 test_enemy = pygame.image.load("test_enemy.png")
@@ -51,12 +52,13 @@ sing = pygame.image.load("sign_right_size.png")
 ice_monster = pygame.image.load("ice_monster.png")
 sing = pygame.transform.scale(sing, (100, 100))
 ice_monster = pygame.transform.scale(ice_monster, (100, 100))
-catti_monster = pygame.image.load("catti_monster.png")
+catti_monster = pygame.image.load("cactii.png")
 catti_monster = pygame.transform.scale(catti_monster, (100, 100))
 grass_x = [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900]
-
+path_x = [400, 500, 400, 500, 400, 500, 400, 500, 400, 500, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 400, 500, 400, 500, 400, 500]
+path_y = [0, 0, 100, 100, 200, 200, 300, 300, 400, 400, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 700, 700, 800, 800, 900, 900]
 grass_y = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 700, 700, 700, 700, 700, 700, 700, 700, 700, 700, 800, 800, 800, 800, 800, 800, 800, 800, 800, 800, 900, 900, 900, 900, 900, 900, 900, 900, 900, 900]
-
+path_block = []
 grass_blocks = []
 shop_on_screen = []
 #inits the font
@@ -109,9 +111,9 @@ can_heal = True
 #how much xp you need to level up
 xp_needed = 100
 #the amt of xp you curr have
-xp = 0
+xp = 99
 #your current level
-level = 323
+level = 0
 #if the battle is over
 battle_over = False
 #if you have leveled up
@@ -167,6 +169,7 @@ fighttown1_entance_cordsx = [0, 100, 200, 300, 600, 700, 800, 900, 0, 100, 200, 
 fighttown1_entance_cordsy = [800, 800, 800, 800, 800, 800, 800, 800, 900, 900, 900, 900, 900, 900, 900, 900]
 entance_for_fight_town = []
 housed = []
+portals = []
 #class for the enemy ON THE MAP not in the battle
 #its a very basic class with all the basic stuff
 class enemy_on_map:
@@ -208,7 +211,7 @@ class door:
 #this class is for  THE ENEMYS IN THE BATTLE not on the map
 #this class has all the stuff to battle such as damage and hp
 class enemy_in_battle:
-    def __init__(self, element, damage, pic, max_hp):
+    def __init__(self, element, damage, pic, max_hp, min_xp, max_xp):
         self.element = element
         
         self.damage = damage
@@ -216,6 +219,8 @@ class enemy_in_battle:
         self.pic = pygame.transform.scale(self.pic,(500,500))
         self.max_hp = max_hp
         self.curr_hp = self.max_hp
+        self.min_xp = min_xp
+        self.max_xp = max_xp
     def display(self):
         screen.blit(self.pic, (500, 0))
     def get_curr_hp(self):
@@ -228,7 +233,10 @@ class enemy_in_battle:
         return self.element
     def get_damage(self):
         return self.damage
-
+    def get_max_xp(self):
+        return self.max_xp
+    def get_min_xp(self):
+        return self.min_xp
 #a floor tile is a really simpl class
 #all irt needs is a x a y and if you can collide then it has a rect
 class floor_tile:
@@ -341,8 +349,12 @@ class shop:
         return self.item2
     def get_item3(self):
         return self.item3
-        
-npcs_on_screen = [npc("jake: 1+1=11", old_man, 500, 500, 1), npc("old man: 2+2=22", old_man, 700, 300, 2), npc("rando guy: I big brain", old_man, 300, 300, 1)]
+def collide_with_door():
+    for i in portals:
+        if i.get_door_hitbox().colliderect(player_hitbox):
+            return True
+npcs_on_screen = [npc("jake: 1+1=11", old_man, 500, 500, 1), npc("old man: Hi you must kill the 3 headed hydra that destroyed this village you can do that by going to the castle to kill it take this it will help", old_man, 700, 300, 2), npc("rando guy: I big brain", old_man, 300, 300, 1)]
+
 #this is for colliding ON THE MAPPPPPPPPPPPP
 def collide_on_map():
     for i in enemys_on_map:
@@ -356,10 +368,10 @@ def collide_door():
         if player_hitbox_rect.colliderect(i.get_door_hitbox()):
             #doors_on_screen.remove(i)
             return True
-def collion_with_shop():
-    for i in shop_on_screen:
-        if player_hitbox_rect.colliderect(i.get_hitbox()):
-            return True
+#def collion_with_shop():
+#    for i in shop_on_screen:
+#        if player_hitbox_rect.colliderect(i.get_hitbox()):
+#            return True
 shop_on_screen = [shop(300, 500, old_man, item("armor tear 1", 10, 3), item("armor tear 2", 30, 4), item("sheild", 50, 5))]
 #shows the moves IN THE BATTLE
 def show_moves():
@@ -407,6 +419,15 @@ creat_boss_room()
 def make_grass():
     for i in range(len(grass_x)):
         grass_blocks.append(floor_tile(grass_x[i], grass_y[i], False, grass))
+def make_des_town():
+    for i in range(len(path_x)):
+        path_block.append(floor_tile(path_x[i], path_y[i], False, stone_wall))
+make_des_town()
+def show_path():
+
+    for i in path_block:
+        i.display_tiles()
+
 make_grass()
 def show_grass():
     for i in grass_blocks:
@@ -443,6 +464,7 @@ def qust_give_npc():
             return 1
         if player_hitbox_rect.colliderect(i.get_hitbox()) and i.get_is_quest() == 3:
             return 2
+
 #will check if your collideing if you are
 #it will check what side it does that by checking if 2 opsite side subtracked by eachother is less then 10 if it is its the amt we subtacted
 def collide_boss_room():
@@ -477,15 +499,11 @@ def collide_with_wall():
                 return 4   
 #shows your quest
 def show_quest():
+    show_quests = smallfont.render("quests", False,  "black")
+    screen.blit(show_quests, [500, 200])
     if quest_1 == False:
-        show_name_q1 = smallfont.render("kill 20 fire water and grass monsters", False,  "black")
-        show_complete_q1_f = smallfont.render(str(fire_enemy_killed) + " /20" + " fire monsters killed", False,  "black")
-        show_complete_q1_w = smallfont.render(str(water_enemy_killed) + " /20" + " water monsters killed", False,  "black")
-        show_complete_q1_g = smallfont.render(str(grass_enemy_killed) + " /20" + " grass monsters killed", False,  "black")
+        show_name_q1 = smallfont.render("go to the castle and kill the dragon!!!", False,  "black")
         screen.blit(show_name_q1, [100, 400])
-        screen.blit(show_complete_q1_f, [100, 600])
-        screen.blit(show_complete_q1_w, [100,500])
-        screen.blit(show_complete_q1_g, [100, 700])
 
 
 #the main loop
@@ -519,7 +537,13 @@ while running == True:
             elif curr_world == "fighttown1":
                 show_grass()
                 show_fight_town_entance()
-                print("dlfkhasdlfkjh")
+            elif curr_world == "destroyedtown1":
+                screen.fill((color_for_map))
+                show_path()
+
+
+
+
             else:
                 screen.fill((color_for_map))
             fps_counter = smallfont.render("fps:" + str(round(clock.get_fps())), False,  "black")
@@ -541,7 +565,7 @@ while running == True:
                 if flip == False:
                     guy = pygame.transform.flip(guy, True, False)
                     flip = True
-                    print("test")
+
             else:
 
                 pass
@@ -626,6 +650,7 @@ while running == True:
                     enemys_on_map = []
                     shop_on_screen = []
                     npcs_on_screen = []
+                    portals = []
                     
                 #left grass
                 if player_x <= 0 and curr_world == "grass1":
@@ -635,6 +660,7 @@ while running == True:
                     enemys_on_map = []
                     npcs_on_screen = []
                     shop_on_screen = []
+                    portals = []
                 #right water
                 if player_x >= 900 and curr_world == "grass2":
                     curr_world = "grass1"
@@ -643,6 +669,10 @@ while running == True:
                     enemys_on_map = []
                     npcs_on_screen = []
                     shop_on_screen = []
+                    portals = [door(500, 500, dark_fountain, 100, 100)]
+
+                if curr_world == "grass1" and collide_with_door() == True:
+                    print("test")
                 #left water
                 if player_x <= 0 and curr_world == "grass2" and curr_world != "endlesswoods":
                     player_x+=player_speed
@@ -656,56 +686,62 @@ while running == True:
                     enemys_on_map = []
                     npcs_on_screen = []
                     shop_on_screen = []
+                    portals = [door(500, 500, dark_fountain, 100, 100)]
                 if player_y >= 900 and curr_world!="town" and curr_world!= "fire":
                         player_y-=player_speed
-                        print("down")
+
                 if player_y >= 900 and curr_world == "town":
                     curr_world = "grass1"
                     color_for_map = "dark green"
-                    player_y = 900
+                    player_y = 500
                     enemys_on_map = []
                     npcs_on_screen = []
                     shop_on_screen = []
+                    portals = [door(500, 500, dark_fountain, 100, 100)]
                     #up
                 if player_y <= 0 and curr_world!="grass3" and curr_world!="grass1"  and curr_world!= "grass2":
                         player_y+=player_speed
-                        print("up !@#$%")
+
 
                 if curr_world!="grass" and curr_world!= "town" and curr_world!="grass3" and curr_world!="grass1" and curr_world!= "grass2":
                     if player_y <= 0:
                             player_y+=player_speed
-                            print("up 245345-")
+
 
                 if curr_world == "grass3" and player_y <= 0:
                     curr_world = "fire"
                     color_for_map = "red"
-                    print("fire time")
+
                     enemys_on_map = []
                     npcs_on_screen = [npc("fire monster:   dont kill me pls take this", fire_good_guy, 850, 50 , 3) ]
                     shop_on_screen = []
+                    portals = []
                 if curr_world == "grass2" and player_y <= 0:
                     curr_world = "water"
                     color_for_map = "blue"
-                    print("fire time")
+
                     enemys_on_map = []
                     npcs_on_screen = []
                     shop_on_screen = []
                     player_x = 500
                     player_y = 500
+                    portals = []
 
                 if curr_world == "fire" and player_y >= 900:
                     curr_world = "grass3"
                     color_for_map = "dark green"
-                    print("It SHOULD WORK")
+
                     player_y = 800
                     enemys_on_map = []
                     npcs_on_screen = []
                     shop_on_screen = []
+                    portals = []
                 if curr_world == "water" and player_y >= 890:
                     curr_world = "grass2" 
                     enemys_on_map = []
                     npcs_on_screen = []
                     shop_on_screen = []
+                    portals = []
                 if curr_world == "grass2" and player_x <= 50:
                     curr_world = "endlesswoods"
                     color_for_map = "dark green"
@@ -713,12 +749,42 @@ while running == True:
                     npcs_on_screen = []
                     shop_on_screen = []
                     player_x = 500
+                    portals = []
                 if curr_world == "endlesswoods" and player_x >= 899:
                     curr_world = "grass2" 
                     enemys_on_map = []
                     npcs_on_screen = []
                     shop_on_screen = []
                     player_x = 500
+                    portals = []
+                if curr_world == "grass1" and player_y >= 890:
+                    curr_world = "destroyedtown1"
+                    enemys_on_map = []
+                    npcs_on_screen = []
+                    shop_on_screen = []
+                    color_for_map = "green"
+                    print("test")
+                    player_y = 500
+                    portals = []
+
+             
+                if curr_world == "destroyedtown1" and player_y <= 50:
+                    curr_world = "grass1"
+                    enemys_on_map = []
+                    npcs_on_screen = []
+                    shop_on_screen = []
+                    player_y = 500
+                    portals = []
+                if curr_world == "destroyedtown2" and player_y <= 50:
+                    curr_world = "destroyedtown1"
+                    enemys_on_map = []
+                    npcs_on_screen = []
+                    shop_on_screen = []
+                    color_for_map = "green"
+                    print("test")
+                    player_y = 500
+                    portals = []
+                    color_for_map = "green"
                 if curr_world == "grass3" and player_y >= 890:
                     curr_world = "moutain"
                     color_for_map = "white"
@@ -726,10 +792,29 @@ while running == True:
                     npcs_on_screen = []
                     shop_on_screen = []
                     player_x = 500
+                    portals = []
                     player_y = 500
                 if curr_world == "grass3" and player_x >= 890:
                     curr_world = "sand"
                     color_for_map = "yellow"
+                    enemys_on_map = []
+                    npcs_on_screen = []
+                    shop_on_screen = []
+                    player_x = 500
+                    player_y = 500
+                    portals = []
+                if curr_world == "destroyedtown1" and player_y >= 850:
+                    curr_world = "destroyedtown2"
+                    player_y =  500
+                    enemys_on_map = []
+                    npcs_on_screen = []
+                    shop_on_screen = []
+                    player_x = 500
+                    player_y = 500
+
+                    portals = []
+                if curr_world == "destroyedtown1" and player_y <= 0:
+                    curr_world =  "grass1"
                     enemys_on_map = []
                     npcs_on_screen = []
                     shop_on_screen = []
@@ -743,6 +828,7 @@ while running == True:
                     enemys_on_map = []
                     npcs_on_screen = []
                     shop_on_screen = []
+                    portals = []
                 if curr_world == "moutain" and player_y <= 100:
                     curr_world = "grass3"
                     color_for_map = "dark green"
@@ -751,7 +837,8 @@ while running == True:
                     enemys_on_map = []
                     npcs_on_screen = []
                     shop_on_screen = []
-                    print("ooookkkkkkkkkkkkkkkkkkkkkkkkkkke")
+
+                    portals = []
                 if curr_world == "grass2" and player_y >= 890:
                     curr_world = "fighttown1"
                     player_y = 500
@@ -761,21 +848,25 @@ while running == True:
                         npcs_on_screen = [npc("gard: your not high enof level", old_man, 300, 700 , 1), npc("gard: your not high enof level", old_man, 600, 700 , 1)]
                     else:
                         npcs_on_screen = [npc("go on in", old_man, 300, 700 , 1), npc("go on in", old_man, 600, 700 , 1)]
+                    portals = []
                     shop_on_screen = []
                 if curr_world == "fighttown1" and player_y <= 100:
                     curr_world = "grass2" 
                     enemys_on_map = []
                     npcs_on_screen = []
                     shop_on_screen = []
+                    portals = []
                     player_y = 500
                 if curr_world == "fighttown1" and player_y >= 890 and level >= 5:
                     curr_world = "fighttown2" 
                     enemys_on_map = []
-                    npcs_on_screen = [npc("warrior: this town is great hu", warrier, 300, 700, 1), npc("warrior: Im a god at fighting", warrier, 800, 700, 1)]
-                    shop_on_screen = [shop(300, 500, warrier, item("ring of damage", 100, 6), item("ring of xp", 300, 7), item("ring of gold", 500, 8))]
+                    npcs_on_screen = [npc("warrior: this town is great hu", warrier, 300, 700, 1), npc("warrior: Im a god at fighting", warrier, 800, 700, 1), npc("warrior:Hi man", warrier, 800, 700, 1)]
+                                                                                                                                                       #new thing                                                         
+                    shop_on_screen = [shop(900, 900, warrier, item("ring of damage", 100, 6), item("ring of xp", 300, 7), item("ring of gold", 500, 8)), shop(400, 600, warrier, item("sheild 2", 700, 9), item("ring of healing", 1500, 10), item("key of darkness", 1000, 11))]
                     player_y = 500
                     player_x = 500
-                    housed = [house(700, 500, castle, 300, 300)]
+                    housed = [house(700, 500, castle, 300, 300), house(200, 700, castle, 300, 300)]
+                    portals = []
                     color_for_map = "gray"
                 if curr_world == "fighttown2" and player_y <= 51:
                     curr_world = "fighttown1"
@@ -783,7 +874,7 @@ while running == True:
                     player_x = 500
                     housed = []
                     enemys_on_map = []
-
+                    portals = []
                     if level <= 5:
                         npcs_on_screen = [npc("gard: your not high enof level", old_man, 300, 700 , 1), npc("gard: your not high enof level", old_man, 600, 700 , 1)]
                     else:
@@ -798,6 +889,7 @@ while running == True:
                     if player_y <= 0 and curr_world!="fire":
                             #player_y+=player_speed
                             #print("up")
+                            portals = []
                             curr_world  = "town"
                             color_for_map = "grey"
                             enemys_on_map = []
@@ -810,14 +902,17 @@ while running == True:
                 #down
             #if your in the boss room  you should not be able to move off the screen
             #this does it
+            print(curr_world)
+            for i in portals:
+                i.display_door()
+
             else:
                 if player_y >= 900:
                         player_y-=player_speed
-                        print("down")
+
                     #up
                 if player_y <= 0 and curr_world!="grass3":
                         player_y+=player_speed
-                        print("up 1+1=11")
                 if player_x >= 900:
                     player_x-=player_speed
                 if player_x <= 0:
@@ -858,7 +953,9 @@ while running == True:
                         enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, ice_monster))
                     elif curr_world == "sand":
                         enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, catti_monster))
-            print(curr_world)
+                    elif curr_world == "destroyedtown1":
+                        enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, warrier))
+
             #check if you should level up
             if xp >= xp_needed:
                 xp = 0
@@ -871,7 +968,7 @@ while running == True:
                     enemy_max_dam+=15
                     enemy_mx_hp += 50
                     
-                xp_needed+=10
+                xp_needed+=50
                 has_armor1 = False
             if player_hp > player_max_hp:
                 player_hp = player_max_hp
@@ -889,7 +986,7 @@ while running == True:
             draw_npc()
             qust_give_npc_out_put = qust_give_npc()
             if  qust_give_npc_out_put  == 1:
-                print("this is a quest giver")
+
                 player_items.append(item("you got a nutall staff", 1, 2))
                 quest_1 = False
             elif qust_give_npc_out_put == 2:
@@ -904,7 +1001,7 @@ while running == True:
 
             for i in shop_on_screen:
                 i.show_guy()
-                if collion_with_shop() == True:
+                if player_hitbox_rect.colliderect(i.get_hitbox()) == True:
                     i.show_shop()
                     if keys[pygame.K_1] and gold >= i.get_item1().get_price() :
 
@@ -929,17 +1026,19 @@ while running == True:
                 #makes the enemy
                 if enemy_has_create == False:
                     if curr_world == "water":
-                        curr_in_battle_enemy = enemy_in_battle("water", 15, test_enemy2, 250)
+                        curr_in_battle_enemy = enemy_in_battle("water", 15, test_enemy2, 250, 10, 25)
                     elif curr_world == "fire":
-                        curr_in_battle_enemy = enemy_in_battle("fire",  20, test_enemy, 500)
+                        curr_in_battle_enemy = enemy_in_battle("fire",  20, test_enemy, 500, 20, 50)
                     elif curr_world == "grass1" or curr_world == "grass2" or curr_world == "grass3":
-                        curr_in_battle_enemy = enemy_in_battle("grass", 10, test_enemy3, 100)
+                        curr_in_battle_enemy = enemy_in_battle("grass", 10, test_enemy3, 100, 1, 10)
                     elif curr_world == "endlesswoods":
-                        curr_in_battle_enemy = enemy_in_battle("grass", enemy_max_dam, test_enemy3, enemy_mx_hp)
+                        curr_in_battle_enemy = enemy_in_battle("grass", enemy_max_dam, test_enemy3, enemy_mx_hp, 1,  50)
                     elif curr_world == "moutain":
-                        curr_in_battle_enemy = enemy_in_battle("grass", 13, ice_monster, 300)
+                        curr_in_battle_enemy = enemy_in_battle("grass", 13, ice_monster, 300, 20,30)
                     elif curr_world == "sand":
-                        curr_in_battle_enemy = enemy_in_battle("to be determined", 12, catti_monster, 200)
+                        curr_in_battle_enemy = enemy_in_battle("to be determined", 12, catti_monster, 200,20, 27)
+                    elif curr_world == "destroyedtown1":
+                        curr_in_battle_enemy = enemy_in_battle("stone", 13, warrier, 1000, 30,50)
                     enemy_has_create = True
                 #changes the size
                 guy = pygame.transform.scale(guy,(500,500))
@@ -957,18 +1056,17 @@ while running == True:
                 #keys=pygame.key.get_pressed()
                 #fire
                 if keys[pygame.K_1] and who_turn == "player" and can_attack == False :
-                    #damge_done = random.randint(5, 10)
+                    damge_done = damage
                     if curr_in_battle_enemy.get_element() == "grass":
-                        curr_in_battle_enemy.do_damage(damage*2)
+                        damage_done = damage*2
 
                     elif curr_in_battle_enemy.get_element() == "fire":
-                        curr_in_battle_enemy.do_damage(damage)
+                        damage_done = damage
                     elif curr_in_battle_enemy.get_element() == "water":
                         damage_done = damage/2
                         damage_done = round(damage_done)
-                        curr_in_battle_enemy.do_damage(damage_done)
-                    else:
-                        curr_in_battle_enemy.do_damage(damage)
+
+                    curr_in_battle_enemy.do_damage(damage_done)
                     who_turn = "enemy"
                     can_attack = True
                     starttime = pygame.time.get_ticks()
@@ -981,50 +1079,36 @@ while running == True:
                     who_turn = "enemy"
                     can_attack = True
                     starttime = pygame.time.get_ticks()
+                    damage_done = damage
                     if curr_in_battle_enemy.get_element() == "fire":
-                        curr_in_battle_enemy.do_damage(damage*2)
+                        damage_done = damage*2
 
                     elif curr_in_battle_enemy.get_element() == "water":
-                        curr_in_battle_enemy.do_damage(damage)
+                        damage_done = damage
                     elif curr_in_battle_enemy.get_element() == "grass":
                         damage_done = damage/2
                         damage_done = round(damage_done)
-                        curr_in_battle_enemy.do_damage(damage_done)
-                    else:
-                        curr_in_battle_enemy.do_damage(damage)
+                    curr_in_battle_enemy.do_damage(damage_done)
                 #grass
                 if keys[pygame.K_3] and who_turn == "player" and can_attack == False :
 
 
                     who_turn = "enemy"
                     can_attack = True
-
+                    damage_done = damage
                     starttime = pygame.time.get_ticks()
                     if curr_in_battle_enemy.get_element() == "water":
-                        for i in player_items:
-                            if i.get_index() == 6:
-                          
-                                curr_in_battle_enemy.do_damage(damage*2+5)
-                            else:
-                                curr_in_battle_enemy.do_damage(damage*2)
+
+                        damage_done = damage*2
+                        #curr_in_battle_enemy.do_damage(damage*2)
                     elif curr_in_battle_enemy.get_element() == "grass":
-                        for i in player_items:
-                            if i.get_index() == 6:
-                                curr_in_battle_enemy.do_damage(damage+5)
-                            else:
-                                curr_in_battle_enemy.do_damage(damage)
+                        damage_done = damage
+
                     elif curr_in_battle_enemy.get_element() == "fire":
-                        for i in player_items:
-                            if i.get_index() == 6:
-                                damage_done = damage/2
-                                damage_done = round(damage_done)
-                                curr_in_battle_enemy.do_damage(damage_done+5)
-                            else:
-                                damage_done = damage/2
-                                damage_done = round(damage_done)
-                                curr_in_battle_enemy.do_damage(damage_done)
-                    else:
-                        curr_in_battle_enemy.do_damage(damage)
+
+                         damage_done = damage/2
+                         damage_done = round(damage_done)
+                    curr_in_battle_enemy.do_damage(damage_done)
                 #enemy attack
                 if who_turn == "enemy" and can_attack == False:
                     damage_done = random.randint(5, curr_in_battle_enemy.get_damage())
@@ -1033,6 +1117,10 @@ while running == True:
                         if i.get_index() == 5 and random.randint(1, 10) == 1:
                             damage_done = 0
                             print("we are deduseing damage")
+                        elif i.get_index() == 9 and random.randint(1, 5) == 1:
+                             damage_done = 0
+                        elif i.get_index() == 10  and random.randint(1, 10) == 1:
+                            player_hp+=15
                     who_turn = "player"
                     player_hp-=damage_done
                     charge+=1
@@ -1053,8 +1141,10 @@ while running == True:
                     lives-=1
                     player_hp = player_max_hp
                     who_won = "enemy"
+                for i in player_items:
+                    if i.get_index() == 6:
+                        curr_in_battle_enemy.do_damage(5)
 
-                print(charge)
 
             elif battle_over == True:
                     if who_won == "player":
@@ -1065,7 +1155,7 @@ while running == True:
                             heal_crystal+=crsysels_added
                     
 
-                            xp_added = random.randint(20, 30)
+                            xp_added = random.randint(curr_in_battle_enemy.get_min_xp(), curr_in_battle_enemy.get_max_xp())
                             gold_added = random.randint(1, 15)
                             for i in player_items:
                                 if i.get_index() == 7:
