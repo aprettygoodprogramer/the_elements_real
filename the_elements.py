@@ -150,6 +150,8 @@ quest_1 = True
 boss_room = False
 #all the boxes in the boss room
 boss_room_boxes = []
+in_credits = False
+can_swich2 = True 
 #all the cords
 boss_room_box_cords_x = [0, 100, 200, 300, 600, 700, 800, 900, 0, 100, 200, 300, 600, 700, 800, 900, 0, 100, 200, 300, 600, 700, 800, 900, 0, 100, 200, 300, 600, 700, 800, 900, 0, 100, 200, 300, 600, 700, 800, 900, 0, 100, 200, 300, 600, 700, 800, 900]
 boss_room_box_cords_y = [0, 0, 0, 0, 0, 0, 0, 0, 100, 100, 100, 100, 100, 100, 100, 100, 200, 200, 200, 200, 200, 200, 200, 200, 500, 500, 500, 500, 500, 500, 500, 500, 600, 600, 600, 600, 600, 600, 600, 600, 700, 700, 700, 700, 700, 700, 700, 700,700]
@@ -771,15 +773,23 @@ while running == True:
                     player_y = 500
                     portals = []
 
-
-             
+                if curr_world == "castle" and player_y <= 50:
+                    curr_world = "destroyedtown1"
+                    enemys_on_map = []
+                    npcs_on_screen = []
+                    shop_on_screen = []
+                    color_for_map = "green"
+                    print("test")
+                    player_y = 500
+                    portals = []
+              
                 if curr_world == "destroyedtown1" and player_y <= 50:
                     curr_world = "grass1"
                     enemys_on_map = []
                     npcs_on_screen = []
                     shop_on_screen = []
                     player_y = 500
-                    portals = []
+                    portals = [door(500, 500, dark_fountain, 100, 100)]
                 if curr_world == "destroyedtown2" and player_y <= 50:
                     curr_world = "destroyedtown1"
                     enemys_on_map = []
@@ -848,6 +858,7 @@ while running == True:
                     curr_world = "castle"
                     player_y = 150
                     color_for_map = "grey"
+                if curr_world == "castle" and player_y <= 50:
 
                     enemys_on_map = []
                     npcs_on_screen = []
@@ -1219,17 +1230,17 @@ while running == True:
         screen.fill((255, 255, 255))
         #show the main screen
         
-        if in_welcome == False:
+        if in_welcome == False and in_credits == False:
             press_space = smallfont.render("press space to start", False,  "green")
             press_a = smallfont.render("press a for help", False,  "green")
             screen.blit(press_space, [300, 500])
             screen.blit(press_a, [300, 600])
             play_button = (500, 500, 300, 300)
         #check if you are hitting space and if you are yyour not on the start screeb
-        if keys[pygame.K_SPACE] and in_welcome == False:
+        if keys[pygame.K_SPACE] and in_welcome == False and in_credits == False:
             on_start_screen = False
         #sends you to the welcolme screen
-        if keys[pygame.K_a] and can_swich == True:
+        if keys[pygame.K_a] and can_swich == True and in_credits == False:
             in_welcome = not in_welcome
             can_swich = False
             starttime = pygame.time.get_ticks()
@@ -1247,6 +1258,26 @@ while running == True:
             screen.blit(welcome_to_2, [0, 550])
             screen.blit(welcome_to_3, [0, 600])
             in_welcome = True
+        if in_credits == False:
+           credits_ = smallfont.render("hit c to see the cretits", False,  "green")
+           screen.blit(credits_, [300, 700])
+        if keys[pygame.K_c] and can_swich2 == True:
+            in_credits = not in_credits
+            can_swich2 = False
+            starttime = pygame.time.get_ticks()
+        if can_swich2 == False and pygame.time.get_ticks() - starttime >= 500:
+            can_swich2 = True
+        if in_credits == True:
+            credits1 = welcome.render("all game desing and proggraming done by Evan Ducas and some art", False,  "green")
+            credits2 = welcome.render("almost all art done by my grandma", False,  "green")
+            credits3 = welcome.render("some art done by Edwin", False,  "green")
+            credits4 = welcome.render("thanks to my dad for supporting me", False, "green")
+            credits5 = welcome.render("thanks to mom for play testing my game", False, "green")
+            screen.blit(credits1, [0, 300])
+            screen.blit(credits2, [400, 400])
+            screen.blit(credits3, [400, 500])
+            screen.blit(credits5, [400, 700])
+            screen.blit(credits4, [400, 600])
     #updates the screen
     pygame.display.update()
 pygame.quit()
