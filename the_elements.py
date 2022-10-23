@@ -33,6 +33,8 @@ grass = pygame.transform.scale(grass,(100,100))
 guy.set_colorkey ("white")
 test_enemy = pygame.image.load("test_enemy.png")
 test_enemy2 = pygame.image.load("test_enemy_2.png")
+hydra = pygame.image.load("hydra.png")
+hydra = pygame.transform.scale(hydra,(200,200))
 fire_good_guy = pygame.image.load("good_fire_monster.png")
 fire_good_guy = pygame.transform.scale(fire_good_guy,(100,100))
 test_enemy3 = pygame.image.load("grass_monster_right_size.png")
@@ -70,12 +72,13 @@ player_x = 500
 player_y = 500
 #speed
 player_speed = 7
-
+has_spwaned_hydra = False
 #left = True
 #player hp
 player_hp = 150
 #the enemys on thr map
 enemys_on_map = []
+castle_blocks = []
 in_battle = False 
 #player hitbox
 player_hitbox = (player_x, player_y, 100, 200)
@@ -429,6 +432,7 @@ def show_path():
         i.display_tiles()
 
 make_grass()
+
 def show_grass():
     for i in grass_blocks:
         i.display_tiles()
@@ -534,11 +538,11 @@ while running == True:
                 if curr_world == "grass1":
                     npcs_on_screen=[ npc("water <--", sing, 200, 500, 1),npc("fire -->", sing, 700, 500,1)]
 
-            elif curr_world == "fighttown1":
+            elif curr_world == "fighttown1" or curr_world == "destroyedtown2":
                 show_grass()
                 show_fight_town_entance()
             elif curr_world == "destroyedtown1":
-                screen.fill((color_for_map))
+                show_grass()
                 show_path()
 
 
@@ -612,7 +616,7 @@ while running == True:
                     player_x-=player_speed
                 if output == 4:
                     player_x+=player_speed
-            if curr_world == "fighttown1":
+            if curr_world == "fighttown1" or curr_world == "destroyedtown2":
                 output2 = collide_with_wall()
                 if output2 == 1:
                     player_y-=player_speed
@@ -767,6 +771,7 @@ while running == True:
                     player_y = 500
                     portals = []
 
+
              
                 if curr_world == "destroyedtown1" and player_y <= 50:
                     curr_world = "grass1"
@@ -839,6 +844,14 @@ while running == True:
                     shop_on_screen = []
 
                     portals = []
+                if curr_world == "destroyedtown2" and player_y >= 899:
+                    curr_world = "castle"
+                    player_y = 150
+                    color_for_map = "grey"
+
+                    enemys_on_map = []
+                    npcs_on_screen = []
+                    shop_on_screen = []
                 if curr_world == "grass2" and player_y >= 890:
                     curr_world = "fighttown1"
                     player_y = 500
@@ -953,9 +966,12 @@ while running == True:
                         enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, ice_monster))
                     elif curr_world == "sand":
                         enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, catti_monster))
-                    elif curr_world == "destroyedtown1":
+                    elif curr_world == "destroyedtown1" or curr_world == "destroyedtown2":
                         enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, warrier))
 
+            if curr_world == "castle" and has_spwaned_hydra == False:
+                enemys_on_map.append(enemy_on_map(500, 500, hydra))
+                has_spwaned_hydra = True
             #check if you should level up
             if xp >= xp_needed:
                 xp = 0
@@ -1037,8 +1053,10 @@ while running == True:
                         curr_in_battle_enemy = enemy_in_battle("grass", 13, ice_monster, 300, 20,30)
                     elif curr_world == "sand":
                         curr_in_battle_enemy = enemy_in_battle("to be determined", 12, catti_monster, 200,20, 27)
-                    elif curr_world == "destroyedtown1":
+                    elif curr_world == "destroyedtown1" or curr_world == "destroyedtown2":
                         curr_in_battle_enemy = enemy_in_battle("stone", 13, warrier, 1000, 30,50)
+                    elif curr_world == "castle":
+                        curr_in_battle_enemy = enemy_in_battle("EVERYTHING", 13, hydra, 5000, 500,1000)
                     enemy_has_create = True
                 #changes the size
                 guy = pygame.transform.scale(guy,(500,500))
@@ -1194,6 +1212,7 @@ while running == True:
                             in_battle = False
                             has_added = False
                             battle_over = False
+                            has_spwaned_hydra = False
     #####################################################################################################################
     else:
         #the  menu
