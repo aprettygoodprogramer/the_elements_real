@@ -881,7 +881,7 @@ while running == True:
                     shop_on_screen = []
                     portals = []
                     player_y = 500
-                if curr_world == "fighttown1" and player_y >= 890 and level >= 5:
+                if curr_world == "fighttown1" and player_y >= 890 and level >= 3:
                     curr_world = "fighttown2" 
                     enemys_on_map = []
                     npcs_on_screen = [npc("warrior: this town is great hu", warrier, 300, 700, 1), npc("warrior: Im a god at fighting", warrier, 800, 700, 1), npc("warrior:Hi man", warrier, 800, 700, 1)]
@@ -995,7 +995,7 @@ while running == True:
                     enemy_max_dam+=15
                     enemy_mx_hp += 50
                     
-                xp_needed+=50
+                xp_needed+=20
                 has_armor1 = False
             if player_hp > player_max_hp:
                 player_hp = player_max_hp
@@ -1005,6 +1005,7 @@ while running == True:
             if player_hp <= 0:
                 lives-=1
                 player_hp = player_max_hp
+                curr_world = "town"
             if lives == 0:
                 print("YOU DIED")
 
