@@ -29,6 +29,7 @@ screen = pygame.display.set_mode((1000, 1000))
 guy = pygame.image.load("wizard_f1.png")
 grass = pygame.image.load("grass_right_size.png")
 dark_fountain = pygame.image.load("fountain.png")
+water = pygame.image.load("water.png")
 grass = pygame.transform.scale(grass,(100,100))
 guy.set_colorkey ("white")
 test_enemy = pygame.image.load("test_enemy.png")
@@ -39,6 +40,8 @@ fire_good_guy = pygame.image.load("good_fire_monster.png")
 fire_good_guy = pygame.transform.scale(fire_good_guy,(100,100))
 test_enemy3 = pygame.image.load("grass_monster_right_size.png")
 enemy_in_battle_grass = pygame.image.load("grass_monster_battle.png")
+boat = pygame.image.load("boat.png")
+boat = pygame.transform.scale(boat,(100,200))
 castle = pygame.image.load("castle.png")
 guy = pygame.transform.scale(guy,(100,200))
 recharge = pygame.image.load("recharge.png")
@@ -175,6 +178,10 @@ fighttown1_entance_cordsy = [800, 800, 800, 800, 800, 800, 800, 800, 900, 900, 9
 entance_for_fight_town = []
 housed = []
 portals = []
+has_beeten_game = True
+water_world = []
+has_extra_element = False
+island1_list = []
 #class for the enemy ON THE MAP not in the battle
 #its a very basic class with all the basic stuff
 class enemy_on_map:
@@ -445,7 +452,17 @@ def make_entance_fight_town():
     for i in range(len(fighttown1_entance_cordsx)):
         entance_for_fight_town.append(floor_tile(fighttown1_entance_cordsx[i], fighttown1_entance_cordsy[i], False, stone_wall))
 make_entance_fight_town()
-
+def make_water(list1, list2, list3):
+    for i in range(len(list1)):
+        list3.append(floor_tile(list1[i], list2[i], False, water))
+make_water([0, 100, 0, 100, 0, 100, 0, 100, 0, 100, 0, 100, 0, 100, 0, 100, 0, 100, 0, 100], [0, 0, 100, 100, 200, 200, 300, 300, 400, 400, 500, 500, 600, 600, 700, 700, 800, 800, 900, 900], water_world)
+make_water([800, 900, 800, 900, 800, 900, 800, 900, 800, 900, 800, 900, 800, 900, 800, 900, 800, 900, 800, 900, ], [0, 0, 100, 100, 200, 200, 300, 300, 400, 400, 500, 500, 600, 600, 700, 700, 800, 800, 900, 900], island1_list)
+def show_tiles(list_):
+    for i in list_:
+        i.display_tiles()
+def show_beach():
+    for i in water_world:
+        i.display_tiles()
 make_house()
 def show_collide_house():
     for i in houses:
@@ -546,7 +563,14 @@ while running == True:
             elif curr_world == "destroyedtown1":
                 show_grass()
                 show_path()
-
+            elif curr_world == "beach":
+                screen.fill((color_for_map))
+                show_beach()
+                pass
+            elif curr_world == "island3":
+                screen.fill((color_for_map))
+                show_tiles(island1_list)
+                
 
 
 
@@ -676,9 +700,30 @@ while running == True:
                     npcs_on_screen = []
                     shop_on_screen = []
                     portals = [door(500, 500, dark_fountain, 100, 100)]
-
-                if curr_world == "grass1" and collide_with_door() == True:
-                    print("test")
+                for i in player_items:
+                    if curr_world == "grass1" and collide_with_door() == True and i.get_idex() == 11:
+                        curr_world = "darkworld"
+                        color_for_map = (38,0,77)
+                        enemys_on_map = []
+                        npcs_on_screen = []
+                        shop_on_screen = []
+                        portals = []
+                if collide_with_door() == True and curr_world == "beach":
+                    curr_world = "island3"
+                    color_for_map = "yellow"
+                    enemys_on_map = []
+                    npcs_on_screen = []
+                    shop_on_screen = []
+                    portals = [door(800, 500, boat, 100, 200)]
+                if collide_with_door() == True and curr_world == "island3":
+                    curr_world = "beach"
+                    enemys_on_map = []
+                    if has_beeten_game == False:
+                        npcs_on_screen = [npc("im on a boat trip come back later", sing, 200, 400 , 1)]
+                        portal = []
+                    else:
+                        npcs_on_screen = [npc("hi step on the boat to go on the island", old_man, 300, 700 , 1)]
+                        portals = [door(100, 400, boat, 100, 200)]
                 #left water
                 if player_x <= 0 and curr_world == "grass2" and curr_world != "endlesswoods":
                     player_x+=player_speed
@@ -699,7 +744,7 @@ while running == True:
                 if player_y >= 900 and curr_world == "town":
                     curr_world = "grass1"
                     color_for_map = "dark green"
-                    player_y = 500
+                    player_y = 100
                     enemys_on_map = []
                     npcs_on_screen = []
                     shop_on_screen = []
@@ -742,6 +787,15 @@ while running == True:
                     npcs_on_screen = []
                     shop_on_screen = []
                     portals = []
+                if curr_world == "island3" and player_x <= 50:
+                    portals = []
+                    curr_world = "island1"
+                    color_for_map = "dark green"
+                    enemys_on_map = []
+                    npcs_on_screen = []
+                    shop_on_screen = []
+                    portals = []
+                    player_x = 800
                 if curr_world == "water" and player_y >= 890:
                     curr_world = "grass2" 
                     enemys_on_map = []
@@ -800,6 +854,26 @@ while running == True:
                     player_y = 500
                     portals = []
                     color_for_map = "green"
+                if curr_world == "island1" and player_x <= 50:
+                    curr_world = "island2"
+                    enemys_on_map = []
+                    npcs_on_screen = []
+                    shop_on_screen = []
+                    color_for_map = "dark green"
+
+                    player_y = 800
+                if curr_world == "island2" and player_x >=899:
+                    portals = []
+                    curr_world = "island1"
+                    color_for_map = "dark green"
+                    enemys_on_map = []
+                    npcs_on_screen = []
+                    shop_on_screen = []
+                    portals = []  
+                            
+
+                    player_x = 100
+
                 if curr_world == "grass3" and player_y >= 890:
                     curr_world = "moutain"
                     color_for_map = "white"
@@ -903,12 +977,45 @@ while running == True:
                         npcs_on_screen = [npc("gard: your not high enof level", old_man, 300, 700 , 1), npc("gard: your not high enof level", old_man, 600, 700 , 1)]
                     else:
                         npcs_on_screen = [npc("go on in", old_man, 300, 700 , 1), npc("go on in", old_man, 600, 700 , 1)]
+                if curr_world == "island1" and player_x >= 899:
+                    curr_world = "island3"
+                    color_for_map = "yellow"
+                    enemys_on_map = []
+                    npcs_on_screen = []
+                    shop_on_screen = []
+                    portals = [door(800, 500, boat, 100, 200)]
+                    player_x = 100
                 if player_x >= 900:
                     player_x-=player_speed
                 if player_x <= 0:
                     player_x+=player_speed
-
-
+                if curr_world == "fighttown1" and player_x <= 70:
+                    curr_world = "beach"
+                    enemys_on_map = []
+                    if has_beeten_game == False:
+                        npcs_on_screen = [npc("im on a boat trip come back later", sing, 200, 400 , 1)]
+                        portal = []
+                    else:
+                        npcs_on_screen = [npc("hi step on the boat to go on the island", old_man, 300, 700 , 1)]
+                        portals = [door(100, 400, boat, 100, 200)]
+                    
+                    shop_on_screen = []
+                    
+                    player_x = 800
+                    color_for_map = "yellow"
+                    print("testsdasdsad")
+                if curr_world == "beach" and player_x >= 850:
+                    curr_world = "fighttown1"
+                    player_y = 500
+                    player_x = 500
+                    housed = []
+                    enemys_on_map = []
+                    portals = []
+                    if level <= 5:
+                        npcs_on_screen = [npc("gard: your not high enof level", old_man, 300, 700 , 1), npc("gard: your not high enof level", old_man, 600, 700 , 1)]
+                    else:
+                        npcs_on_screen = [npc("go on in", old_man, 300, 700 , 1), npc("go on in", old_man, 600, 700 , 1)]
+                 
                 else:
                     if player_y <= 0 and curr_world!="fire":
                             #player_y+=player_speed
@@ -979,6 +1086,8 @@ while running == True:
                         enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, catti_monster))
                     elif curr_world == "destroyedtown1" or curr_world == "destroyedtown2":
                         enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, warrier))
+                    elif curr_world == "island1" or curr_world == "island2":
+                        enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, test_enemy3))
 
             if curr_world == "castle" and has_spwaned_hydra == False:
                 enemys_on_map.append(enemy_on_map(500, 500, hydra))
@@ -1069,6 +1178,8 @@ while running == True:
                         curr_in_battle_enemy = enemy_in_battle("stone", 13, warrier, 1000, 30,50)
                     elif curr_world == "castle":
                         curr_in_battle_enemy = enemy_in_battle("EVERYTHING", 13, hydra, 5000, 500,1000)
+                    elif curr_world == "island1" or curr_world == "island2":
+                        curr_in_battle_enemy = enemy_in_battle("grass", 15, test_enemy3, 2500, 40, 50)
                     enemy_has_create = True
                 #changes the size
                 guy = pygame.transform.scale(guy,(500,500))
@@ -1146,7 +1257,6 @@ while running == True:
                     for i in player_items:
                         if i.get_index() == 5 and random.randint(1, 10) == 1:
                             damage_done = 0
-                            print("we are deduseing damage")
                         elif i.get_index() == 9 and random.randint(1, 5) == 1:
                              damage_done = 0
                         elif i.get_index() == 10  and random.randint(1, 10) == 1:
@@ -1195,6 +1305,8 @@ while running == True:
                             xp+=xp_added
                             gold += gold_added
                             has_added = True
+                            if curr_in_battle_enemy.get_element() == "EVERYTHING":
+                                has_beeten_game = True
                         #all the texts
                         press_space_to_contin = smallfont.render("press space to continue", False,  "black")
                         you_got_crystals  = smallfont.render("crstles got "+str(crsysels_added-1), False,  "black")
