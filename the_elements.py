@@ -111,7 +111,7 @@ in_welcome = False
 #timer var
 can_swich = True
 #how many lives you have
-lives = 5
+lives = 1
 #if you can heal
 can_heal = True
 #how much xp you need to level up
@@ -169,7 +169,7 @@ place_for_house_y = [0, 600]
 npcs_on_screen = []
 enemy_mx_hp = 100
 player_items = [] 
-gold = 0
+gold = 343459340593405934509345093405934503032452304958230945830954823945823950823945823085203458204589832458234958342059
 has_armor1 = False
 has_armor2 = False
 enemy_max_dam = 10
@@ -178,20 +178,21 @@ fighttown1_entance_cordsy = [800, 800, 800, 800, 800, 800, 800, 800, 900, 900, 9
 entance_for_fight_town = []
 housed = []
 portals = []
-has_beeten_game = True
+has_beeten_game = False
 water_world = []
 has_extra_element = False
 island1_list = []
 #class for the enemy ON THE MAP not in the battle
 #its a very basic class with all the basic stuff
 class enemy_on_map:
-    def __init__(self, x, y, pic):
+    def __init__(self, x, y, pic, type_):
         self.x = x
         self.y = y 
         self.pic = pic
         self.pic = pygame.transform.scale(self.pic,(100,100))
         self.hitbox = (self.x, self.y, 100, 100)
         self.hitbox_rect = pygame.Rect(self.hitbox)
+        self.type_ = type_
     def display(self):
         self.hitbox = (self.x, self.y, 100, 100)
         self.hitbox_rect = pygame.Rect(self.hitbox)
@@ -199,6 +200,9 @@ class enemy_on_map:
         screen.blit(self.pic, (self.x, self.y))
     def get_hitbox(self):
         return self.hitbox_rect
+    def get_type(self):
+        return self.type_
+
 
 #door class: kind of like a enemy on the map
 #if you collide it should put you in a new place
@@ -371,9 +375,14 @@ npcs_on_screen = [npc("jake: 1+1=11", old_man, 500, 500, 1), npc("old man: Hi yo
 def collide_on_map():
     for i in enemys_on_map:
         if player_hitbox_rect.colliderect(i.get_hitbox()):
-            
-            enemys_on_map.remove(i)
+            if i.get_type() == "boss":
+                
+                pass
+            else:
+                print("sus")
+                enemys_on_map.remove(i)
             return True
+                
 #checks if you collide with a door will return True if collided
 def collide_door():
     for i in doors_on_screen:
@@ -580,25 +589,25 @@ while running == True:
             screen.blit(fps_counter, [850, 50])
             #player movement
             #keys = pygame.key.get_pressed()
+            if lives != 0:
+                if keys[pygame.K_w]:
+                    player_y-=player_speed
+                if keys[pygame.K_s]:
+                    player_y+=player_speed
+                if keys[pygame.K_d]:
+                    player_x+=player_speed
+                    if flip == True:
+                        guy = pygame.transform.flip(guy, True, False)
+                        flip = False
+                if keys[pygame.K_a]:
+                    player_x-=player_speed
+                    if flip == False:
+                        guy = pygame.transform.flip(guy, True, False)
+                        flip = True
 
-            if keys[pygame.K_w]:
-                player_y-=player_speed
-            if keys[pygame.K_s]:
-                player_y+=player_speed
-            if keys[pygame.K_d]:
-                player_x+=player_speed
-                if flip == True:
-                    guy = pygame.transform.flip(guy, True, False)
-                    flip = False
-            if keys[pygame.K_a]:
-                player_x-=player_speed
-                if flip == False:
-                    guy = pygame.transform.flip(guy, True, False)
-                    flip = True
+                else:
 
-            else:
-
-                pass
+                    pass
             if curr_world == "town":
                 show_collide_house()
             #if you press q then it will show the quest
@@ -668,8 +677,10 @@ while running == True:
                     else:
                         player_max_hp+=100
                     has_armor2 = True
+                elif i.get_index() == 12:
+                    heal_crystal+=30
+                    player_items.remove(i)
             
-
             #right grass
             if boss_room == False:
                 #this is the loject for swichiing worlds
@@ -678,7 +689,10 @@ while running == True:
                     curr_world = "grass3"
                     player_x = 100
                     enemys_on_map = []
-                    shop_on_screen = []
+                    if random.randint(1, 5) == 1:
+                        shop_on_screen = [shop(500, 500, guy, item("crytels 30", 75, 12), item("phenix down", 200, 13), item("final stand", 300, 14))]
+                    else:
+                        shop_on_screen = []
                     npcs_on_screen = []
                     portals = []
                     
@@ -701,7 +715,7 @@ while running == True:
                     shop_on_screen = []
                     portals = [door(500, 500, dark_fountain, 100, 100)]
                 for i in player_items:
-                    if curr_world == "grass1" and collide_with_door() == True and i.get_idex() == 11:
+                    if curr_world == "grass1" and collide_with_door() == True and i.get_index() == 11:
                         curr_world = "darkworld"
                         color_for_map = (38,0,77)
                         enemys_on_map = []
@@ -785,7 +799,10 @@ while running == True:
                     player_y = 800
                     enemys_on_map = []
                     npcs_on_screen = []
-                    shop_on_screen = []
+                    if random.randint(1, 5) == 1:
+                        shop_on_screen = [shop(500, 500, guy, item("crytels 30", 75, 12), item("phenix down", 200, 13), item("final stand", 300, 14))]
+                    else:
+                        shop_on_screen = []
                     portals = []
                 if curr_world == "island3" and player_x <= 50:
                     portals = []
@@ -916,7 +933,10 @@ while running == True:
                     player_x = 500
                     enemys_on_map = []
                     npcs_on_screen = []
-                    shop_on_screen = []
+                    if random.randint(1, 5) == 1:
+                        shop_on_screen = [shop(500, 500, guy, item("crytels 30", 75, 12), item("phenix down", 200, 13), item("final stand", 300, 14))]
+                    else:
+                        shop_on_screen = []
                     portals = []
                 if curr_world == "moutain" and player_y <= 100:
                     curr_world = "grass3"
@@ -925,7 +945,10 @@ while running == True:
                     player_x = 500
                     enemys_on_map = []
                     npcs_on_screen = []
-                    shop_on_screen = []
+                    if random.randint(1, 5) == 1:
+                        shop_on_screen = [shop(500, 500, guy, item("crytels 30", 75, 12), item("phenix down", 200, 13), item("final stand", 300, 14))]
+                    else:
+                        shop_on_screen = []
 
                     portals = []
                 if curr_world == "destroyedtown2" and player_y >= 899:
@@ -1033,18 +1056,18 @@ while running == True:
                 #down
             #if your in the boss room  you should not be able to move off the screen
             #this does it
-            print(curr_world)
+
             for i in portals:
                 i.display_door()
 
             else:
-                if player_y >= 900:
+                if player_y >= 1000:
                         player_y-=player_speed
 
                     #up
                 if player_y <= 0 and curr_world!="grass3":
                         player_y+=player_speed
-                if player_x >= 900:
+                if player_x >= 1000:
                     player_x-=player_speed
                 if player_x <= 0:
                     player_x+=player_speed
@@ -1062,8 +1085,13 @@ while running == True:
             player_hitbox_rect = pygame.Rect(player_hitbox)
             #pygame.draw.rect(screen, (0, 0, 0), player_hitbox_rect, 2)
             #if you collide go into battle
+            if collide_on_map() == 1:
+                in_battle = True
+                player_x = 600
+                player_y = 600
             if collide_on_map() == True:
                 in_battle = True
+                print("no more sus :(")
             #checks if it should spwan enemy
             if boss_room == False and quest_1 == False:
                 spawn_enemy = random.randint(1, 150)
@@ -1072,25 +1100,25 @@ while running == True:
 
                     enemy_y = random.randint(1, 900)
                     if curr_world == "water":
-                        enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, test_enemy2))
+                        enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, test_enemy2, "water"))
                     
                     elif curr_world == "grass1" or curr_world == "grass2" or curr_world == "grass3":
-                        enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, test_enemy3))
+                        enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, test_enemy3, "grass"))
                     elif curr_world == "fire":
-                        enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, test_enemy))
+                        enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, test_enemy, "fire"))
                     elif curr_world == "endlesswoods":
-                        enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, test_enemy3))
+                        enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, test_enemy3, "grass"))
                     elif curr_world == "moutain":
-                        enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, ice_monster))
+                        enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, ice_monster, "grass"))
                     elif curr_world == "sand":
-                        enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, catti_monster))
+                        enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, catti_monster, "IDK"))
                     elif curr_world == "destroyedtown1" or curr_world == "destroyedtown2":
-                        enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, warrier))
+                        enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, warrier, "NULL"))
                     elif curr_world == "island1" or curr_world == "island2":
-                        enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, test_enemy3))
+                        enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, test_enemy3, "grass"))
 
             if curr_world == "castle" and has_spwaned_hydra == False:
-                enemys_on_map.append(enemy_on_map(500, 500, hydra))
+                enemys_on_map.append(enemy_on_map(500, 500, hydra, "boss"))
                 has_spwaned_hydra = True
             #check if you should level up
             if xp >= xp_needed:
@@ -1115,10 +1143,7 @@ while running == True:
                 lives-=1
                 player_hp = player_max_hp
                 curr_world = "town"
-            if lives == 0:
-                print("YOU DIED")
 
-                show_boss_room()
 
             draw_npc()
             qust_give_npc_out_put = qust_give_npc()
@@ -1196,8 +1221,10 @@ while running == True:
                 #all the attacks and when you press attack
                 #keys=pygame.key.get_pressed()
                 #fire
+
+                        
                 if keys[pygame.K_1] and who_turn == "player" and can_attack == False :
-                    damge_done = damage
+                    damage_done = damage
                     if curr_in_battle_enemy.get_element() == "grass":
                         damage_done = damage*2
 
@@ -1257,6 +1284,7 @@ while running == True:
                     for i in player_items:
                         if i.get_index() == 5 and random.randint(1, 10) == 1:
                             damage_done = 0
+
                         elif i.get_index() == 9 and random.randint(1, 5) == 1:
                              damage_done = 0
                         elif i.get_index() == 10  and random.randint(1, 10) == 1:
@@ -1264,6 +1292,10 @@ while running == True:
                     who_turn = "player"
                     player_hp-=damage_done
                     charge+=1
+                for i in player_items:
+                    print("did say fornite")
+                    if i.get_index() == 6:
+                        curr_in_battle_enemy.do_damage(5)
                 #makes so you cant spam
                 if can_attack == True and pygame.time.get_ticks() - starttime >= 1000:
                     can_attack = False
@@ -1275,15 +1307,27 @@ while running == True:
                     who_won = "player"
                 #if you die
                 if player_hp <= 0:
-                    battle_over = True
-                    who_turn = "enemy"
-                    enemy_has_create = False
-                    lives-=1
-                    player_hp = player_max_hp
-                    who_won = "enemy"
-                for i in player_items:
-                    if i.get_index() == 6:
-                        curr_in_battle_enemy.do_damage(5)
+                    for i in player_items:
+                        if i.get_index() == 13:
+                            player_hp = player_max_hp
+                            print("your mom is thicc")
+                            player_items.remove (i)
+                        elif i.get_index() == 14:
+                            player_hp = 1
+                        else:
+                            battle_over = True
+                            who_turn = "enemy"
+                            enemy_has_create = False
+                            lives-=1
+                            player_hp = player_max_hp
+                            who_won = "enemy"
+                            portals = []
+                            curr_world  = "town"
+                            color_for_map = "grey"
+                            enemys_on_map = []
+                            shop_on_screen = [shop(300, 500, old_man, item("armor tear 1", 10, 3), item("armor tear 2", 30, 4), item("sheild", 50, 5))]
+                            npcs_on_screen = [npc("jake: 1+1=11", old_man, 500, 500, 1), npc("old man: Hi you must kill the 3 headed hydra that destroyed this village you can do that by killing all three dragons kill all the types to get the dragons take this staff to kill them", old_man, 700, 300, 2), npc("rando guy: I big brain", old_man, 300, 300, 1)]
+                            player_y = 500
 
 
             elif battle_over == True:
@@ -1326,7 +1370,7 @@ while running == True:
                                 grass_enemy_killed+=1
                             elif curr_in_battle_enemy.get_element() == "water":
                                 water_enemy_killed+=1
-                    elif who_won == "enemy":
+                    elif who_won == "enemy"  and lives!=0:
                         screen.fill((255,255,255))
                         you_lost =smallfont.render("you lost press space to continue", False,  "black")
                         screen.blit(you_lost, [200,500])
@@ -1337,6 +1381,19 @@ while running == True:
                             has_added = False
                             battle_over = False
                             has_spwaned_hydra = False
+                    elif who_won == "enemy" and lives == 0:
+                        if lives == 0:
+                            screen.fill((255, 255, 255))
+                            you_died = smallfont.render("you died - 50 gold press space to contrinue", False, "black")
+                            screen.blit(you_died, [250, 500])
+                            if keys[pygame.K_SPACE]:
+                                gold -= 50
+                                lives = 3
+                                heal_crystal=0
+                                in_battle = False
+                                has_added = False
+                                battle_over = False
+                                has_spwaned_hydra = False
     #####################################################################################################################
     else:
         #the  menu
@@ -1349,8 +1406,10 @@ while running == True:
             screen.blit(press_space, [300, 500])
             screen.blit(press_a, [300, 600])
             play_button = (500, 500, 300, 300)
+
         #check if you are hitting space and if you are yyour not on the start screeb
         if keys[pygame.K_SPACE] and in_welcome == False and in_credits == False:
+
             on_start_screen = False
         #sends you to the welcolme screen
         if keys[pygame.K_a] and can_swich == True and in_credits == False:

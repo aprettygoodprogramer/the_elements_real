@@ -1,0 +1,5 @@
+player_x = 500
+player_y = 500
+player_hp = 150
+player_max_hp = 150
+player_items = []
