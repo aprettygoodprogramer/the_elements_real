@@ -187,6 +187,8 @@ water_world = []
 has_extra_element = False
 island1_list = []
 has_used_laststand = False
+gamemode_easy = True
+change_game_mode = True
 #class for the enemy ON THE MAP not in the battle
 #its a very basic class with all the basic stuff
 class enemy_on_map:
@@ -1205,7 +1207,7 @@ while running == True:
             
                     has_fliped = True
                 #makes the enemy
-                if enemy_has_create == False:
+                if enemy_has_create == False and gamemode_easy == True:
                     if curr_world == "water":
                         curr_in_battle_enemy = enemy_in_battle("water", 15, test_enemy2, 250, 10, 25, "shark", 1, 50)
                     elif curr_world == "fire":
@@ -1226,6 +1228,29 @@ while running == True:
                         curr_in_battle_enemy = enemy_in_battle("grass", 17, test_enemy3, 2500, 40, 50, "gard of gods", 100, 300)
                     elif curr_world == "island2":
                         curr_in_battle_enemy = enemy_in_battle("GOD", 30, god, 7000, 100, 300, "GOD", 500, 1000)
+
+                    enemy_has_create = True
+                if enemy_has_create == False and gamemode_easy == False:
+                    if curr_world == "water":
+                        curr_in_battle_enemy = enemy_in_battle("water", 15, test_enemy2, 250, 10, 25, "shark", 1, 50)
+                    elif curr_world == "fire":
+                        curr_in_battle_enemy = enemy_in_battle("fire",  20, test_enemy, 1000, 20, 50, "dragon", 25, 50)
+                    elif curr_world == "grass1" or curr_world == "grass2" or curr_world == "grass3":
+                        curr_in_battle_enemy = enemy_in_battle("grass", 10, test_enemy3, 100, 1, 10, "goblin", 1, 25)
+                    elif curr_world == "endlesswoods":
+                        curr_in_battle_enemy = enemy_in_battle("grass", enemy_max_dam, test_enemy3, enemy_mx_hp*2, 1,  50, "goblin", 1, 50)
+                    elif curr_world == "moutain":
+                        curr_in_battle_enemy = enemy_in_battle("grass", 13, ice_monster, 600, 20,30, "yetti", 10, 50)
+                    elif curr_world == "sand":
+                        curr_in_battle_enemy = enemy_in_battle("to be determined", 12, catti_monster, 400,20, 27, "cactii", 5, 50)
+                    elif curr_world == "destroyedtown1" or curr_world == "destroyedtown2":
+                        curr_in_battle_enemy = enemy_in_battle("stone", 13, warrier, 2000, 30,50, "kinght", 30, 60)
+                    elif curr_world == "castle":
+                        curr_in_battle_enemy = enemy_in_battle("EVERYTHING", 25, hydra, 10000, 500,1000, "hydra", 50, 150)
+                    elif curr_world == "island1":
+                        curr_in_battle_enemy = enemy_in_battle("grass", 17, test_enemy3, 5000, 40, 50, "gard of gods", 100, 300)
+                    elif curr_world == "island2":
+                        curr_in_battle_enemy = enemy_in_battle("GOD", 30, god, 1400, 100, 300, "GOD", 500, 1000)
                     enemy_has_create = True
                 #changes the size
                 guy = pygame.transform.scale(guy,(500,500))
@@ -1433,10 +1458,16 @@ while running == True:
         if in_welcome == False and in_credits == False:
             press_space = smallfont.render("press space to start", False,  "green")
             press_a = smallfont.render("press a for help", False,  "green")
+            if gamemode_easy == False:
+                press_1_to_switch_modes = smallfont.render("press 1 to go to hard mode", False,  "green")
+                BEWEAR = smallfont.render("WARNING: this gamemode is really grindy", False,  "red")
+                screen.blit(BEWEAR, [100, 200])
+            elif gamemode_easy == True:
+                press_1_to_switch_modes = smallfont.render("press 1 to go to easy mode", False,  "green")
             screen.blit(press_space, [300, 500])
             screen.blit(press_a, [300, 600])
             play_button = (500, 500, 300, 300)
-
+            screen.blit(press_1_to_switch_modes, [100, 100])
         #check if you are hitting space and if you are yyour not on the start screeb
         if keys[pygame.K_SPACE] and in_welcome == False and in_credits == False:
 
@@ -1480,6 +1511,13 @@ while running == True:
             screen.blit(credits3, [400, 500])
             screen.blit(credits5, [400, 700])
             screen.blit(credits4, [400, 600])
+        if keys[pygame.K_1] and change_game_mode == True:
+            gamemode_easy = not gamemode_easy
+            starttime2 = pygame.time.get_ticks()
+            change_game_mode = False
+        if change_game_mode == False:
+            if pygame.time.get_ticks() - starttime2 >= 500:
+                change_game_mode = True
     #updates the screen
     pygame.display.update()
 pygame.quit()
