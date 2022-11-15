@@ -59,6 +59,9 @@ sing = pygame.transform.scale(sing, (100, 100))
 ice_monster = pygame.transform.scale(ice_monster, (100, 100))
 catti_monster = pygame.image.load("cactii.png")
 catti_monster = pygame.transform.scale(catti_monster, (100, 100))
+
+god = pygame.image.load("god.png")
+god = pygame.transform.scale(god, (100, 100))
 grass_x = [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900]
 path_x = [400, 500, 400, 500, 400, 500, 400, 500, 400, 500, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 400, 500, 400, 500, 400, 500]
 path_y = [0, 0, 100, 100, 200, 200, 300, 300, 400, 400, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 700, 700, 800, 800, 900, 900]
@@ -114,6 +117,7 @@ can_swich = True
 lives = 1
 #if you can heal
 can_heal = True
+has_killed_god = False
 #how much xp you need to level up
 xp_needed = 100
 #the amt of xp you curr have
@@ -169,7 +173,7 @@ place_for_house_y = [0, 600]
 npcs_on_screen = []
 enemy_mx_hp = 100
 player_items = [] 
-gold = 343459340593405934509345093405934503032452304958230945830954823945823950823945823085203458204589832458234958342059
+gold = 0
 has_armor1 = False
 has_armor2 = False
 enemy_max_dam = 10
@@ -178,10 +182,11 @@ fighttown1_entance_cordsy = [800, 800, 800, 800, 800, 800, 800, 800, 900, 900, 9
 entance_for_fight_town = []
 housed = []
 portals = []
-has_beeten_game = False
+has_beeten_game = True
 water_world = []
 has_extra_element = False
 island1_list = []
+has_used_laststand = False
 #class for the enemy ON THE MAP not in the battle
 #its a very basic class with all the basic stuff
 class enemy_on_map:
@@ -227,7 +232,7 @@ class door:
 #this class is for  THE ENEMYS IN THE BATTLE not on the map
 #this class has all the stuff to battle such as damage and hp
 class enemy_in_battle:
-    def __init__(self, element, damage, pic, max_hp, min_xp, max_xp):
+    def __init__(self, element, damage, pic, max_hp, min_xp, max_xp, name, min_gold, max_gold):
         self.element = element
         
         self.damage = damage
@@ -237,6 +242,9 @@ class enemy_in_battle:
         self.curr_hp = self.max_hp
         self.min_xp = min_xp
         self.max_xp = max_xp
+        self.min_gold = min_gold
+        self.max_gold = max_gold
+        self.name = name
     def display(self):
         screen.blit(self.pic, (500, 0))
     def get_curr_hp(self):
@@ -253,6 +261,12 @@ class enemy_in_battle:
         return self.max_xp
     def get_min_xp(self):
         return self.min_xp
+    def get_min_gold(self):
+        return self.min_gold
+    def get_max_gold(self):
+        return self.max_gold
+    def get_name(self):
+        return self.name
 #a floor tile is a really simpl class
 #all irt needs is a x a y and if you can collide then it has a rect
 class floor_tile:
@@ -333,6 +347,7 @@ class item:
         return self.name
     def get_price(self):
         return self.price
+player_items = [item("clothes", 0, 0)] 
 class shop:
     def __init__(self, x, y, image, item1, item2, item3):
         self.x = x
@@ -403,19 +418,20 @@ def show_moves():
 
     grass_spell_text = smallfont.render("grass spell press 3", False,  "green")
 
-    screen.blit(fire_spell_text, [20, 900])
+    screen.blit(fire_spell_text, [15, 900])
 
-    screen.blit(water_spell_text, [20, 800])
+    screen.blit(water_spell_text, [15, 800])
 
-    screen.blit(grass_spell_text, [20, 700])
+    screen.blit(grass_spell_text, [15, 700])
 #shows the hp IN THE BATTLE 
 def show_hp():
     enemy_curr_hp = curr_in_battle_enemy.get_curr_hp()
     enemy_max_hp = curr_in_battle_enemy.get_max_hp()
-    enemy_hp_text = smallfont.render("enemy hp" + str(enemy_curr_hp) + "/" +         str(enemy_max_hp), False,  "black")
+    enemy_hp_text = smallfont.render(str(curr_in_battle_enemy.get_name())+"hp" + str(enemy_curr_hp) + "/" +  str(enemy_max_hp), False,  "black")
     player_hp_text = smallfont.render("player hp" + str(player_hp) + "/" + str(player_max_hp), False,  "black")
-    screen.blit(enemy_hp_text, [600, 700])
-    screen.blit(player_hp_text, [600, 600])
+
+    screen.blit(enemy_hp_text, [450, 700])
+    screen.blit(player_hp_text, [450, 600])
 #shows all the stuff on the map
 def show_stuff_on_map():
     show_lives_left = smallfont.render("lives: "+ str(lives), False,  "black")
@@ -873,7 +889,10 @@ while running == True:
                     color_for_map = "green"
                 if curr_world == "island1" and player_x <= 50:
                     curr_world = "island2"
-                    enemys_on_map = []
+                    if has_killed_god == False:
+                        enemys_on_map = [enemy_on_map(600, 600, god, "god")]
+                    else:
+                        enemys_on_map = []
                     npcs_on_screen = []
                     shop_on_screen = []
                     color_for_map = "dark green"
@@ -1114,10 +1133,10 @@ while running == True:
                         enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, catti_monster, "IDK"))
                     elif curr_world == "destroyedtown1" or curr_world == "destroyedtown2":
                         enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, warrier, "NULL"))
-                    elif curr_world == "island1" or curr_world == "island2":
+                    elif curr_world == "island1":
                         enemys_on_map.append(enemy_on_map(enemy_x, enemy_y, test_enemy3, "grass"))
 
-            if curr_world == "castle" and has_spwaned_hydra == False:
+            if curr_world == "castle" and has_spwaned_hydra == False and has_beeten_game == False:
                 enemys_on_map.append(enemy_on_map(500, 500, hydra, "boss"))
                 has_spwaned_hydra = True
             #check if you should level up
@@ -1188,23 +1207,25 @@ while running == True:
                 #makes the enemy
                 if enemy_has_create == False:
                     if curr_world == "water":
-                        curr_in_battle_enemy = enemy_in_battle("water", 15, test_enemy2, 250, 10, 25)
+                        curr_in_battle_enemy = enemy_in_battle("water", 15, test_enemy2, 250, 10, 25, "shark", 1, 50)
                     elif curr_world == "fire":
-                        curr_in_battle_enemy = enemy_in_battle("fire",  20, test_enemy, 500, 20, 50)
+                        curr_in_battle_enemy = enemy_in_battle("fire",  20, test_enemy, 500, 20, 50, "dragon", 25, 50)
                     elif curr_world == "grass1" or curr_world == "grass2" or curr_world == "grass3":
-                        curr_in_battle_enemy = enemy_in_battle("grass", 10, test_enemy3, 100, 1, 10)
+                        curr_in_battle_enemy = enemy_in_battle("grass", 10, test_enemy3, 100, 1, 10, "goblin", 1, 25)
                     elif curr_world == "endlesswoods":
-                        curr_in_battle_enemy = enemy_in_battle("grass", enemy_max_dam, test_enemy3, enemy_mx_hp, 1,  50)
+                        curr_in_battle_enemy = enemy_in_battle("grass", enemy_max_dam, test_enemy3, enemy_mx_hp, 1,  50, "goblin", 1, 50)
                     elif curr_world == "moutain":
-                        curr_in_battle_enemy = enemy_in_battle("grass", 13, ice_monster, 300, 20,30)
+                        curr_in_battle_enemy = enemy_in_battle("grass", 13, ice_monster, 300, 20,30, "yetti", 10, 50)
                     elif curr_world == "sand":
-                        curr_in_battle_enemy = enemy_in_battle("to be determined", 12, catti_monster, 200,20, 27)
+                        curr_in_battle_enemy = enemy_in_battle("to be determined", 12, catti_monster, 200,20, 27, "cactii", 5, 50)
                     elif curr_world == "destroyedtown1" or curr_world == "destroyedtown2":
-                        curr_in_battle_enemy = enemy_in_battle("stone", 13, warrier, 1000, 30,50)
+                        curr_in_battle_enemy = enemy_in_battle("stone", 13, warrier, 1000, 30,50, "kinght", 30, 60)
                     elif curr_world == "castle":
-                        curr_in_battle_enemy = enemy_in_battle("EVERYTHING", 13, hydra, 5000, 500,1000)
-                    elif curr_world == "island1" or curr_world == "island2":
-                        curr_in_battle_enemy = enemy_in_battle("grass", 15, test_enemy3, 2500, 40, 50)
+                        curr_in_battle_enemy = enemy_in_battle("EVERYTHING", 25, hydra, 5000, 500,1000, "hydra", 50, 150)
+                    elif curr_world == "island1":
+                        curr_in_battle_enemy = enemy_in_battle("grass", 17, test_enemy3, 2500, 40, 50, "gard of gods", 100, 300)
+                    elif curr_world == "island2":
+                        curr_in_battle_enemy = enemy_in_battle("GOD", 30, god, 7000, 100, 300, "GOD", 500, 1000)
                     enemy_has_create = True
                 #changes the size
                 guy = pygame.transform.scale(guy,(500,500))
@@ -1307,27 +1328,32 @@ while running == True:
                     who_won = "player"
                 #if you die
                 if player_hp <= 0:
+                    print("ok")
                     for i in player_items:
                         if i.get_index() == 13:
                             player_hp = player_max_hp
                             print("your mom is thicc")
                             player_items.remove (i)
-                        elif i.get_index() == 14:
+                        elif i.get_index() == 14 and has_used_laststand == False:
                             player_hp = 1
-                        else:
-                            battle_over = True
-                            who_turn = "enemy"
-                            enemy_has_create = False
-                            lives-=1
-                            player_hp = player_max_hp
-                            who_won = "enemy"
-                            portals = []
-                            curr_world  = "town"
-                            color_for_map = "grey"
-                            enemys_on_map = []
-                            shop_on_screen = [shop(300, 500, old_man, item("armor tear 1", 10, 3), item("armor tear 2", 30, 4), item("sheild", 50, 5))]
-                            npcs_on_screen = [npc("jake: 1+1=11", old_man, 500, 500, 1), npc("old man: Hi you must kill the 3 headed hydra that destroyed this village you can do that by killing all three dragons kill all the types to get the dragons take this staff to kill them", old_man, 700, 300, 2), npc("rando guy: I big brain", old_man, 300, 300, 1)]
-                            player_y = 500
+                            has_used_laststand = True
+                            who_turn = "player"
+                if player_hp <= 0:
+                    print("bet")
+                    battle_over = True
+                    who_turn = "enemy"
+                    enemy_has_create = False
+                    lives-=1
+                    player_hp = player_max_hp
+                    who_won = "enemy"
+                    portals = []
+                    curr_world  = "town"
+                    color_for_map = "grey"
+                    enemys_on_map = []
+                    shop_on_screen = [shop(300, 500, old_man, item("armor tear 1", 10, 3), item("armor tear 2", 30, 4), item("sheild", 50, 5))]
+                    npcs_on_screen = [npc("jake: 1+1=11", old_man, 500, 500, 1), npc("old man: Hi you must kill the 3 headed hydra that destroyed this village you can do that by killing all three dragons kill all the types to get the dragons take this staff to kill them", old_man, 700, 300, 2), npc("rando guy: I big brain", old_man, 300, 300, 1)]
+                    player_y = 500
+
 
 
             elif battle_over == True:
@@ -1340,7 +1366,7 @@ while running == True:
                     
 
                             xp_added = random.randint(curr_in_battle_enemy.get_min_xp(), curr_in_battle_enemy.get_max_xp())
-                            gold_added = random.randint(1, 15)
+                            gold_added = random.randint(curr_in_battle_enemy.get_min_gold(), curr_in_battle_enemy.get_max_gold())
                             for i in player_items:
                                 if i.get_index() == 7:
                                     xp_added +=10
@@ -1351,6 +1377,8 @@ while running == True:
                             has_added = True
                             if curr_in_battle_enemy.get_element() == "EVERYTHING":
                                 has_beeten_game = True
+                            if curr_in_battle_enemy.get_element() == "GOD":
+                                has_killed_god = True
                         #all the texts
                         press_space_to_contin = smallfont.render("press space to continue", False,  "black")
                         you_got_crystals  = smallfont.render("crstles got "+str(crsysels_added-1), False,  "black")
@@ -1381,6 +1409,7 @@ while running == True:
                             has_added = False
                             battle_over = False
                             has_spwaned_hydra = False
+                            has_used_laststand = False
                     elif who_won == "enemy" and lives == 0:
                         if lives == 0:
                             screen.fill((255, 255, 255))
@@ -1394,6 +1423,7 @@ while running == True:
                                 has_added = False
                                 battle_over = False
                                 has_spwaned_hydra = False
+                                has_used_laststand = False
     #####################################################################################################################
     else:
         #the  menu
