@@ -182,7 +182,7 @@ fighttown1_entance_cordsy = [800, 800, 800, 800, 800, 800, 800, 800, 900, 900, 9
 entance_for_fight_town = []
 housed = []
 portals = []
-has_beeten_game = True
+has_beeten_game = False
 water_world = []
 has_extra_element = False
 island1_list = []
@@ -390,7 +390,7 @@ npcs_on_screen = [npc("jake: 1+1=11", old_man, 500, 500, 1), npc("old man: Hi yo
 def collide_on_map():
     for i in enemys_on_map:
         if player_hitbox_rect.colliderect(i.get_hitbox()):
-            if i.get_type() == "boss":
+            if i.get_type() == "boss" or i.get_type() == "GOD":
                 
                 pass
             else:
