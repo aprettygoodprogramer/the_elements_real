@@ -7,12 +7,14 @@ guy put at botom of screen when transion from village to grass land
 """
 
 #imports pygame
+from tracemalloc import start
 import pygame
 #imports 
 import random
 #gets more stuff from pygame
 from pygame.locals import *
 
+from pyvidplayer import Video
 #inits pygame
 pygame.init()
 #makes the fonts
@@ -514,6 +516,29 @@ def qust_give_npc():
             return 1
         if player_hitbox_rect.colliderect(i.get_hitbox()) and i.get_is_quest() == 3:
             return 2
+vid = Video("cutsecen1.mp4")
+vid.set_size((1000, 1000))
+
+def cutseen_1():
+    run = True
+    start_time = pygame.time.get_ticks()
+    while run:
+
+
+        vid.draw(screen, (0, 0))
+        
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_w] or pygame.time.get_ticks() - start_time >= 18000:
+            vid.close()
+            run = False
+        for event in pygame.event.get():
+
+
+            if event.type==pygame.QUIT:
+                run = False
+        pygame.display.update()
+    
+                
 
 #will check if your collideing if you are
 #it will check what side it does that by checking if 2 opsite side subtracked by eachother is less then 10 if it is its the amt we subtacted
@@ -557,6 +582,7 @@ def show_quest():
 
 
 #the main loop
+cutseen_1()
 while running == True:
     #checks for all key presses
     keys = pygame.key.get_pressed()
