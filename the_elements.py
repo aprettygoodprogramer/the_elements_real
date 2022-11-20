@@ -104,6 +104,7 @@ player_max_hp = 150
 #whos turn 
 who_turn = "player"
 
+can_buy = True
 #damage = 10
 #if you can attack
 can_attack = False
@@ -175,7 +176,7 @@ place_for_house_y = [0, 600]
 npcs_on_screen = []
 enemy_mx_hp = 100
 player_items = [] 
-gold = 0
+gold = 2342424
 has_armor1 = False
 has_armor2 = False
 enemy_max_dam = 10
@@ -536,6 +537,8 @@ def cutseen_1():
 
             if event.type==pygame.QUIT:
                 run = False
+
+
         pygame.display.update()
     
                 
@@ -1210,18 +1213,29 @@ while running == True:
 
             for i in shop_on_screen:
                 i.show_guy()
+
                 if player_hitbox_rect.colliderect(i.get_hitbox()) == True:
+                    
+                    
                     i.show_shop()
-                    if keys[pygame.K_1] and gold >= i.get_item1().get_price() :
+                    if keys[pygame.K_1] and gold >= i.get_item1().get_price() and can_buy == True:
 
                         player_items.append(i.get_item1())
                         gold -= i.get_item1().get_price()
-                    if keys[pygame.K_2] and gold >= i.get_item2().get_price() :
+                        start_time = pygame.time.get_ticks()
+                        can_buy = False
+                    if keys[pygame.K_2] and gold >= i.get_item2().get_price()  and can_buy == True:
                         player_items.append(i.get_item2())
                         gold -= i.get_item2().get_price()
-                    if keys[pygame.K_3] and gold >= i.get_item3().get_price() :
+                        start_time = pygame.time.get_ticks()
+                        can_buy = False
+                    if keys[pygame.K_3] and gold >= i.get_item3().get_price()  and can_buy == True:
                         player_items.append(i.get_item3())
                         gold -= i.get_item3().get_price()
+                        start_time = pygame.time.get_ticks()
+                        can_buy = False
+                    if  can_buy == False and pygame.time.get_ticks() - start_time >= 500:
+                        can_buy = True
         #if else its in the battle
         
         else:
