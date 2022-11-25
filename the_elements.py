@@ -351,6 +351,9 @@ class npc:
         self.text = text_234
         self.text_text = smallfont.render(str(self.text), False,  "black")
         self.main_guy_text = very_small_font.render(str(self.text), False,  "black")
+    def change_is_quest(self, number):
+        self.is_quest = number
+
 class item:
     def __init__(self, name, price, index):
         self.name = name
@@ -1245,7 +1248,8 @@ while running == True:
                     print("hi")
                     npcs_on_screen[2].change_text("thank you")
                     gold -= 50
-
+                    npcs_on_screen[2].change_is_quest(0)
+                    quest2 = False
             
 
 
