@@ -25,13 +25,16 @@ very_small_font = pygame.font.Font("PixelEmulator-xq08.ttf", 7)
 running = True
 #makes the screen
 
-
+grave_stone = pygame.image.load("grave_stone.png")
+grave_stone = pygame.transform.scale(grave_stone,(100,100))
 screen = pygame.display.set_mode((1000, 1000))
 #gets all the images
 guy = pygame.image.load("wizard_f1.png")
 grass = pygame.image.load("grass_right_size.png")
 dark_fountain = pygame.image.load("fountain.png")
 water = pygame.image.load("water.png")
+embersoul = pygame.image.load("embersoul.png")
+embersoul = pygame.transform.scale(embersoul,(100,100))
 grass = pygame.transform.scale(grass,(100,100))
 guy.set_colorkey ("white")
 test_enemy = pygame.image.load("test_enemy.png")
@@ -114,7 +117,7 @@ can_buy = True
 #if you can attack
 can_attack = False
 #the amt of heal crytels
-heal_crystal = 0
+heal_crystal = 29
 #if your on the start screen
 on_start_screen = True
 #if your in the welcolm screen
@@ -131,7 +134,7 @@ xp_needed = 100
 #the amt of xp you curr have
 xp = 99
 #your current level
-level = 0
+level = 3424
 #if the battle is over
 battle_over = False
 #if you have leveled up
@@ -181,7 +184,8 @@ place_for_house_y = [0, 600]
 npcs_on_screen = []
 enemy_mx_hp = 100
 player_items = [] 
-gold = 324324
+gold = 13243243423
+
 has_armor1 = False
 has_armor2 = False
 enemy_max_dam = 10
@@ -201,6 +205,15 @@ attack_player_used = None
 can_swich3 = True
 in_book = False
 quest2 = False
+quest3 = False
+has_beaten_secrat_boss = False
+fire_mana = 3
+water_mana = 3
+grass_mana = 3
+has_subtacted_mana = True
+fire_turns = 3
+water_turns = 3
+grass_turns = 2
 #class for the enemy ON THE MAP not in the battle
 #its a very basic class with all the basic stuff
 class enemy_on_map:
@@ -337,10 +350,10 @@ class npc:
         self.hitbox_stats = (self.x, self.y, 100 ,100)
         self.hitbox = pygame.Rect(self.hitbox_stats)
         screen.blit(self.pic, (self.x, self.y))
-        if self.is_quest == 1:
-            screen.blit(self.text_text, [10, 800])
+        if self.is_quest == 2 or self.is_quest == 5:
+            screen.blit(self.main_guy_text, [10, 800])
         else:
-             screen.blit(self.main_guy_text, [10, 800])
+             screen.blit(self.text_text, [10, 800])
 
         
     def get_hitbox(self):
@@ -405,7 +418,7 @@ def collide_with_door():
     for i in portals:
         if i.get_door_hitbox().colliderect(player_hitbox):
             return True
-npcs_on_screen = [npc("jake: press m to open the guid book!!", old_man, 500, 500, 1), npc("old man: Hi you must kill the 3 headed hydra that destroyed this village you can do that by killing all three dragons kill all the types to get the dragons take this staff to kill them", old_man, 700, 300, 2), npc("yam: I need 50 gold to help me and my fam", old_man, 300, 300, 4)]
+npcs_on_screen = [npc("jake: press m to open the guid book!!", old_man, 500, 500, 1), npc("old man: Hi you must kill the 3 headed hydra that destroyed this village you can do that by killing all three dragons kill all the types to get the dragons take this staff to kill them", old_man, 700, 300, 2), npc("yam: I need 50 gold to help me and my fam", old_man, 300, 300, 4), npc("zeen: I need 30 heal crytels to heal", old_man, 700, 700, 5)]
 
 #this is for colliding ON THE MAPPPPPPPPPPPP
 def collide_on_map():
@@ -451,8 +464,8 @@ def show_hp():
     enemy_hp_text = smallfont.render(str(curr_in_battle_enemy.get_name())+"hp" + str(enemy_curr_hp) + "/" +  str(enemy_max_hp), False,  "black")
     player_hp_text = smallfont.render("player hp" + str(player_hp) + "/" + str(player_max_hp), False,  "black")
 
-    screen.blit(enemy_hp_text, [450, 700])
-    screen.blit(player_hp_text, [450, 600])
+    screen.blit(enemy_hp_text, [100, 600])
+    screen.blit(player_hp_text, [100, 500])
 #shows all the stuff on the map
 def show_stuff_on_map():
     show_lives_left = smallfont.render("lives: "+ str(lives), False,  "black")
@@ -536,6 +549,9 @@ def qust_give_npc():
         if player_hitbox_rect.colliderect(i.get_hitbox()) and i.get_is_quest() == 4:
             print("your mam")
             return 3
+        if player_hitbox_rect.colliderect(i.get_hitbox()) and i.get_is_quest() == 5:
+            print("your mam")
+            return 4
             
 vid = Video("cutsecen1.mp4")
 vid.set_size((1000, 1000))
@@ -604,7 +620,10 @@ def show_quest():
         screen.blit(show_name_q1, [100, 400])
     if quest2 == True:
         show_name_q2 = smallfont.render("bring yam 50 gold", False,  "black")
-        screen.blit(show_name_q2, [100, 400])
+        screen.blit(show_name_q2, [100, 500])
+    if quest3 == True:
+        show_name_q3 = smallfont.render("bring zeen 20 crytels", False,  "black")
+        screen.blit(show_name_q3, [100, 600])
 
 
 #the main loop
@@ -762,6 +781,7 @@ while running == True:
                     player_items.remove(i)
             
             #right grass
+
             if boss_room == False:
                 #this is the loject for swichiing worlds
                 if player_x >= 900 and curr_world == "grass1":
@@ -799,9 +819,33 @@ while running == True:
                         curr_world = "darkworld"
                         color_for_map = (38,0,77)
                         enemys_on_map = []
+                        npcs_on_screen = [npc("RIP jake", grave_stone, 500, 0, 0), npc("RIP zeen J.R", grave_stone, 600, 0, 0), npc("RIP Tecnoblade we will remeber you", grave_stone, 700, 0, 0), npc("RIP Eathan", grave_stone, 800, 0, 0), npc("RIP Lucas", grave_stone, 900, 0, 0), npc("RIP Oliva", grave_stone, 500, 200, 0), npc("RIP Lilly", grave_stone, 600, 200, 0), npc("RIP Stella", grave_stone, 700, 200, 0), npc("RIP Lilly", grave_stone, 800, 200, 0), npc("RIP Ezra", grave_stone, 900, 200, 0), npc("raged guy: Who are You???", old_man, 700, 700, 0), npc("raged old man: You must have came from the main land This land was attacked by a horable monster know as Embersoul he lives in the place to the left", old_man, 0, 500, 5)]
+                        shop_on_screen = []
+                        player_x = 200
+                        player_y = 200
+                        portals = []
+                        housed = [house(0, 100, house_im, 100, 100), house(300, 0, house_im, 100, 100), house(100, 200, house_im, 100, 100), house(300, 200, house_im, 100, 100), house(100, 400, house_im, 100, 100), house(300, 400, house_im, 100, 100),house(100, 600, house_im, 100, 100),house(300, 600, house_im, 100, 100),house(100, 800, house_im, 100, 100),house(300, 800, house_im, 100, 100)]
+                        portals = [door(500, 500, dark_fountain, 100, 100)]
+                        player_x = 200
+                        player_y = 200
+                        player_hitbox = (player_x, player_y, 100, 100)
+                        player_hitbox_rect = pygame.Rect(player_hitbox)
+                    if collide_with_door() == True and curr_world == "darkworld":
+                        
+                        player_x = 200
+                        player_y = 200
+                        curr_world = "grass1"
+                        color_for_map = "dark green"
+                        player_x = 200
+                        player_y = 200
+                        enemys_on_map = []
                         npcs_on_screen = []
                         shop_on_screen = []
-                        portals = []
+                        housed = []
+                        player_hitbox = (player_x, player_y, 100, 100)
+                        player_hitbox_rect = pygame.Rect(player_hitbox)
+                        portals = [door(500, 500, dark_fountain, 100, 100)]
+                print(collide_with_door())
                 if collide_with_door() == True and curr_world == "beach":
                     curr_world = "island3"
                     color_for_map = "yellow"
@@ -844,6 +888,34 @@ while running == True:
                     shop_on_screen = []
                     portals = [door(500, 500, dark_fountain, 100, 100)]
                     #up
+                if player_x <= 0 and curr_world == "darkworld":
+                    curr_world = "darkworld2"
+                    
+                    player_y = 100
+                    if has_beaten_secrat_boss == True:
+                        enemys_on_map = []
+                    else:
+                        enemys_on_map = [enemy_on_map(500, 500, embersoul, "fire")]
+                    npcs_on_screen = []
+                    shop_on_screen = []
+                    housed = []
+                    portals = []
+                    color_for_map = (38,0,77)
+                if player_x >= 700 and curr_world == "darkworld2":
+                        curr_world = "darkworld"
+                        color_for_map = (38,0,77)
+                        enemys_on_map = []
+                        npcs_on_screen = [npc("RIP jake", grave_stone, 500, 0, 0), npc("RIP zeen J.R", grave_stone, 600, 0, 0), npc("RIP Tecnoblade we will remeber you", grave_stone, 700, 0, 0), npc("RIP Eathan", grave_stone, 800, 0, 0), npc("RIP Lucas", grave_stone, 900, 0, 0), npc("RIP Oliva", grave_stone, 500, 200, 0), npc("RIP Lilly", grave_stone, 600, 200, 0), npc("RIP Stella", grave_stone, 700, 200, 0), npc("RIP Lilly", grave_stone, 800, 200, 0), npc("RIP Ezra", grave_stone, 900, 200, 0), npc("raged guy: Who are You???", old_man, 700, 700, 0), npc("raged old man: You must have came from the main land This land was attacked by a horable monster know as Embersoul he lives in the place to the left", old_man, 0, 500, 5)]
+                        shop_on_screen = []
+                        player_x = 100
+                        
+                        portals = []
+                        housed = [house(0, 100, house_im, 100, 100), house(300, 0, house_im, 100, 100), house(100, 200, house_im, 100, 100), house(300, 200, house_im, 100, 100), house(100, 400, house_im, 100, 100), house(300, 400, house_im, 100, 100),house(100, 600, house_im, 100, 100),house(300, 600, house_im, 100, 100),house(100, 800, house_im, 100, 100),house(300, 800, house_im, 100, 100)]
+                        portals = [door(500, 500, dark_fountain, 100, 100)]
+                        player_x = 200
+                        player_y = 200
+                        player_hitbox = (player_x, player_y, 100, 100)
+                        player_hitbox_rect = pygame.Rect(player_hitbox)
                 if player_y <= 0 and curr_world!="grass3" and curr_world!="grass1"  and curr_world!= "grass2":
                         player_y+=player_speed
 
@@ -1131,7 +1203,8 @@ while running == True:
                             color_for_map = "grey"
                             enemys_on_map = []
                             shop_on_screen = [shop(300, 500, old_man, item("armor tear 1", 10, 3), item("armor tear 2", 30, 4), item("sheild", 50, 5))]
-                            npcs_on_screen = [npc("jake: press m to open the guid book!!", old_man, 500, 500, 1), npc("old man: Hi you must kill the 3 headed hydra that destroyed this village you can do that by killing all three dragons kill all the types to get the dragons take this staff to kill them", old_man, 700, 300, 2), npc("yam: I need 50 gold to help me and my fam", old_man, 300, 300, 4)]
+                            npcs_on_screen = [npc("jake: press m to open the guid book!!", old_man, 500, 500, 1), npc("old man: Hi you must kill the 3 headed hydra that destroyed this village you can do that by killing all three dragons kill all the types to get the dragons take this staff to kill them", old_man, 700, 300, 2), npc("yam: I need 50 gold to help me and my fam", old_man, 300, 300, 4), npc("zeen: I need 30 heal crytels to heal", old_man, 700, 700, 5)]
+                            player_y = 500
                             player_y = 500
                     
 
@@ -1226,6 +1299,8 @@ while running == True:
                 lives-=1
                 player_hp = player_max_hp
                 curr_world = "town"
+                npcs_on_screen = [npc("jake: press m to open the guid book!!", old_man, 500, 500, 1), npc("old man: Hi you must kill the 3 headed hydra that destroyed this village you can do that by killing all three dragons kill all the types to get the dragons take this staff to kill them", old_man, 700, 300, 2), npc("yam: I need 50 gold to help me and my fam", old_man, 300, 300, 4), npc("zeen: I need 30 heal crytels to heal", old_man, 700, 700, 5)]
+
 
 
             draw_npc()
@@ -1246,10 +1321,22 @@ while running == True:
                     quest2 = True
                 if quest2 == True and gold >= 50:
                     print("hi")
-                    npcs_on_screen[2].change_text("thank you")
+                    npcs_on_screen[2].change_text("thank you take 20 crytels")
                     gold -= 50
                     npcs_on_screen[2].change_is_quest(0)
+                    heal_crystal+=20
                     quest2 = False
+            if qust_give_npc_out_put == 4:
+                if quest3 == False:
+                    quest3 = True
+            
+                if quest3 == True and heal_crystal  >= 30:
+                    
+                    npcs_on_screen[3].change_text("thank you take 30 gold")
+                    heal_crystal-=30
+                    npcs_on_screen[3].change_is_quest(0)
+                    gold+=30
+                    quest3 = False
             
 
 
@@ -1311,6 +1398,8 @@ while running == True:
                         curr_in_battle_enemy = enemy_in_battle("grass", 17, test_enemy3, 2500, 40, 50, "gard of gods", 100, 300)
                     elif curr_world == "island2":
                         curr_in_battle_enemy = enemy_in_battle("GOD", 30, god, 7000, 100, 300, "GOD", 500, 1000)
+                    elif curr_world == "darkworld2":
+                        curr_in_battle_enemy = enemy_in_battle("fire", 40, embersoul, 10000, 500, 1000, "EmberSoul", 1000, 5000)
 
                     enemy_has_create = True
                 if enemy_has_create == False and gamemode_easy == False:
@@ -1334,6 +1423,8 @@ while running == True:
                         curr_in_battle_enemy = enemy_in_battle("grass", 30, test_enemy3, 5000, 40, 50, "gard of gods", 100, 300)
                     elif curr_world == "island2":
                         curr_in_battle_enemy = enemy_in_battle("GOD", 60, god, 1400, 100, 300, "GOD", 500, 1000)
+                    elif curr_world == "darkworld2":
+                        curr_in_battle_enemy = enemy_in_battle("fire", 65, embersoul, 15000, 500, 1500, "EmberSoul", 1000, 5000)
                     enemy_has_create = True
                 #changes the size
                 guy = pygame.transform.scale(guy,(500,500))
@@ -1352,7 +1443,7 @@ while running == True:
                 #fire
 
                         
-                if keys[pygame.K_1] and who_turn == "player" and can_attack == False :
+                if keys[pygame.K_1] and who_turn == "player" and can_attack == False and fire_mana != 0:
                     damage_done = damage
                     if curr_in_battle_enemy.get_element() == "grass":
                         damage_done = damage*2
@@ -1364,6 +1455,8 @@ while running == True:
                         damage_done = damage/2
                         damage_done = round(damage_done)
                         attack_player_used = "fire"
+                    else:
+                        attack_player_used = "fire"
                     curr_in_battle_enemy.do_damage(damage_done)
                     who_turn = "enemy"
                     can_attack = True
@@ -1371,9 +1464,9 @@ while running == True:
 
                     fire_charge+=1
                     start_time2 = pygame.time.get_ticks()
-
+                    has_subtacted_mana = False
                 #water
-                if keys[pygame.K_2] and who_turn == "player" and can_attack == False :
+                if keys[pygame.K_2] and who_turn == "player" and can_attack == False and water_mana != 0:
 
                     who_turn = "enemy"
                     can_attack = True
@@ -1389,10 +1482,14 @@ while running == True:
                         damage_done = damage/2
                         damage_done = round(damage_done)
                         attack_player_used = "water"
+                    else:
+                        attack_player_used = "water"
                     curr_in_battle_enemy.do_damage(damage_done)
                     start_time2 = pygame.time.get_ticks()
+                    has_subtacted_mana = False
+
                 #grass
-                if keys[pygame.K_3] and who_turn == "player" and can_attack == False :
+                if keys[pygame.K_3] and who_turn == "player" and can_attack == False and grass_mana != 0:
 
 
                     who_turn = "enemy"
@@ -1411,8 +1508,11 @@ while running == True:
                          attack_player_used = "grass"
                          damage_done = damage/2
                          damage_done = round(damage_done)
+                    else:
+                        attack_player_used = "grass"
                     curr_in_battle_enemy.do_damage(damage_done)
                     start_time2 = pygame.time.get_ticks()
+                    has_subtacted_mana = False
                 #enemy attack
                 if who_turn == "enemy" and can_attack == False:
                     attack_player_used = None
@@ -1429,6 +1529,23 @@ while running == True:
                     who_turn = "player"
                     player_hp-=damage_done
                     charge+=1
+                    if fire_mana == 0:
+                        fire_turns -=1
+                    if fire_turns == 0:
+                        fire_mana = 3
+                        fire_turns = 3
+
+                    if water_mana == 0:
+                        water_turns -=1
+                    if water_turns == 0:
+                        water_mana = 3
+                        water_turns = 3
+
+                    if grass_mana == 0:
+                        grass_turns -=1
+                    if grass_turns == 0:
+                       grass_mana = 3
+                       grass_turns = 2
                 for i in player_items:
                     print("did say fornite")
                     if i.get_index() == 6:
@@ -1479,7 +1596,52 @@ while running == True:
                 print(attack_player_used)
                 if attack_player_used == "water":
                     screen.blit(water_anmiaton , (500, 200))
+                if has_subtacted_mana == False:
+                    if attack_player_used == "fire":
+                        fire_mana -=1
+                    if attack_player_used == "water":
+                        water_mana -=1
+                    if attack_player_used == "grass":
+                        grass_mana -= 1
+                    has_subtacted_mana = True
+                if fire_mana == 1:
+                    screen.blit(recharge, (500, 900))
+                    print("yess sirr")
+                if fire_mana == 2:
+                    screen.blit(recharge, (600, 900))
+                    screen.blit(recharge, (500, 900))
+                    print("god tear")
+                if fire_mana == 3:
+                    screen.blit(recharge, (500, 900))
+                    screen.blit(recharge, (600, 900))
+                    screen.blit(recharge, (700, 900))
+                if water_mana == 1:
+                    screen.blit(recharge, (500, 800))
+                    print("yess sirr")
+                if water_mana == 2:
+                    screen.blit(recharge, (600, 800))
+                    screen.blit(recharge, (500, 800))
+                    print("god tear")
+                if water_mana == 3:
+                    screen.blit(recharge, (500, 800))
+                    screen.blit(recharge, (600, 800))
+                    screen.blit(recharge, (700, 800))
+                if grass_mana == 1:
+                    screen.blit(recharge, (500, 700 ))
+                    print("yess sirr")
+                if grass_mana == 2:
+                    screen.blit(recharge, (600, 700))
+                    screen.blit(recharge, (500, 700))
+                    print("god tear")
+                if grass_mana == 3:
+                    screen.blit(recharge, (500, 700))
+                    screen.blit(recharge, (600, 700))
+                    screen.blit(recharge, (700,700))
 
+                    print("you very sussy")
+                print(fire_mana)
+                
+                    
             elif battle_over == True:
                     if who_won == "player":
                         screen.fill((255, 255, 255))
