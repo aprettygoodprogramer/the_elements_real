@@ -38,7 +38,9 @@ embersoul = pygame.transform.scale(embersoul,(100,100))
 grass = pygame.transform.scale(grass,(100,100))
 guy.set_colorkey ("white")
 test_enemy = pygame.image.load("test_enemy.png")
-test_enemy2 = pygame.image.load("test_enemy_2.png")
+test_enemy2 = pygame.image.load("shark.png")
+test_enemy2 = pygame.transform.flip(test_enemy2, False, False)
+
 hydra = pygame.image.load("hydra.png")
 hydra = pygame.transform.scale(hydra,(200,200))
 fire_good_guy = pygame.image.load("good_fire_monster.png")
@@ -117,7 +119,7 @@ can_buy = True
 #if you can attack
 can_attack = False
 #the amt of heal crytels
-heal_crystal = 29
+heal_crystal = 0
 #if your on the start screen
 on_start_screen = True
 #if your in the welcolm screen
@@ -134,7 +136,7 @@ xp_needed = 100
 #the amt of xp you curr have
 xp = 99
 #your current level
-level = 3424
+level = 0
 #if the battle is over
 battle_over = False
 #if you have leveled up
@@ -184,7 +186,7 @@ place_for_house_y = [0, 600]
 npcs_on_screen = []
 enemy_mx_hp = 100
 player_items = [] 
-gold = 13243243423
+gold = 0
 
 has_armor1 = False
 has_armor2 = False
@@ -214,6 +216,8 @@ has_subtacted_mana = True
 fire_turns = 3
 water_turns = 3
 grass_turns = 2
+has_leveled_up = False
+has_upgraded = False
 #class for the enemy ON THE MAP not in the battle
 #its a very basic class with all the basic stuff
 class enemy_on_map:
@@ -1144,7 +1148,7 @@ while running == True:
                     housed = [house(700, 500, castle, 300, 300), house(200, 700, castle, 300, 300)]
                     portals = []
                     color_for_map = "gray"
-                if curr_world == "fighttown2" and player_y <= 51:
+                if curr_world == "fighttown2" and player_y <= 101:
                     curr_world = "fighttown1"
                     player_y = 500
                     player_x = 500
@@ -1279,17 +1283,18 @@ while running == True:
             #check if you should level up
             if xp >= xp_needed:
                 xp = 0
-                player_max_hp+=10
+                
                 level+=1
                 lives = 5
                 player_hp = player_max_hp
-                damage+=10
+                
                 if level%2==0:
                     enemy_max_dam+=15
                     enemy_mx_hp += 50
-                    
+                has_upgraded = False
                 xp_needed+=20
-                has_armor1 = False
+                #has_armor1 = False
+                has_leveled_up = True
             if player_hp > player_max_hp:
                 player_hp = player_max_hp
 
@@ -1340,7 +1345,27 @@ while running == True:
             
 
 
-
+            if has_leveled_up == True:
+                print("wasd")
+                you_leveled_up = smallfont.render("You leveled up !!!!", False,  "black")
+                press_g = smallfont.render("Press G to Continue", False,  "black")
+                press_1 = smallfont.render("Press 1 to + damage", False,  "black")
+                press_2 = smallfont.render("Press 2 to + hp", False,  "black")
+                if has_upgraded == True:
+                    screen.blit(press_g, (400, 200))
+                screen.blit(you_leveled_up, (400, 100))
+                if has_upgraded == False:
+                    screen.blit(press_1, (400, 300))
+                    screen.blit(press_2, (400, 400))
+                if keys[pygame.K_g] and has_upgraded == True:
+                    has_leveled_up  = False 
+                if keys[pygame.K_1] and has_upgraded == False:
+                    damage+=10
+                    has_upgraded = True
+                if keys[pygame.K_2] and has_upgraded == False:
+                    player_max_hp+=10
+                    player_hp = player_max_hp
+                    has_upgraded = True
             for i in shop_on_screen:
                 i.show_guy()
 
