@@ -57,7 +57,7 @@ warrier = pygame.transform.scale(warrier, (100, 100))
 portal =  pygame.image.load("portal.png")
 stone_wall = pygame.image.load("stone.png")
 house_im = pygame.image.load("house.png")
-recharge = pygame.transform.scale(recharge,(100,100))
+recharge = pygame.transform.scale(recharge,(50,50))
 old_man = pygame.image.load("old_man.png")
 old_man = pygame.transform.scale(old_man,(100,100))
 sing = pygame.image.load("sign_right_size.png")
@@ -209,8 +209,11 @@ in_book = False
 quest2 = False
 quest3 = False
 has_beaten_secrat_boss = False
+max_fire_mana = 3
+max_water_mana = 3
+max_grass_mana = 3
 fire_mana = 3
-water_mana = 3
+water_mana = 3 
 grass_mana = 3
 has_subtacted_mana = True
 fire_turns = 3
@@ -640,12 +643,14 @@ while running == True:
     for event in pygame.event.get():
         if event.type==pygame.QUIT:
             running=False
+        elif event.type == pygame.VIDEORESIZE:
+            screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
     #makes run at 60 fps
     clock.tick(60)
     
     #makes the screen in the loop
     
-    screen = pygame.display.set_mode((1000, 1000))
+    screen = pygame.display.set_mode((1000, 1000),  pygame.RESIZABLE)
     fps_counter = smallfont.render(str(round(clock.get_fps())), False,  "black")
     screen.blit(fps_counter, [500, 500])
     
@@ -1142,7 +1147,7 @@ while running == True:
                     enemys_on_map = []
                     npcs_on_screen = [npc("warrior: this town is great hu", warrier, 300, 700, 1), npc("warrior: Im a god at fighting", warrier, 800, 700, 1), npc("warrior:Hi man", warrier, 800, 700, 1)]
                                                                                                                                                        #new thing                                                         
-                    shop_on_screen = [shop(900, 900, warrier, item("ring of damage", 100, 6), item("ring of xp", 300, 7), item("ring of gold", 500, 8)), shop(400, 600, warrier, item("sheild 2", 700, 9), item("ring of healing", 1500, 10), item("key of darkness", 1000, 11))]
+                    shop_on_screen = [shop(900, 900, warrier, item("ring of damage", 100, 6), item("ring of xp", 300, 7), item("ring of gold", 500, 8)), shop(400, 600, warrier, item("sheild 2", 300, 9), item("ring of healing", 800, 10), item("key of darkness", 300, 11))]
                     player_y = 500
                     player_x = 500
                     housed = [house(700, 500, castle, 300, 300), house(200, 700, castle, 300, 300)]
@@ -1351,12 +1356,21 @@ while running == True:
                 press_g = smallfont.render("Press G to Continue", False,  "black")
                 press_1 = smallfont.render("Press 1 to + damage", False,  "black")
                 press_2 = smallfont.render("Press 2 to + hp", False,  "black")
+                press_3 = smallfont.render("Press 3 to + fire mana", False,  "black")
+                press_4 = smallfont.render("Press 4 to + water mana", False,  "black")
+                press_5 = smallfont.render("Press 5 to + grass mana", False,  "black")
                 if has_upgraded == True:
                     screen.blit(press_g, (400, 200))
                 screen.blit(you_leveled_up, (400, 100))
                 if has_upgraded == False:
                     screen.blit(press_1, (400, 300))
                     screen.blit(press_2, (400, 400))
+                    if max_fire_mana != 5:
+                        screen.blit(press_3, (400, 500))
+                    if max_water_mana != 5:
+                        screen.blit(press_4, (400, 600))
+                    if max_grass_mana != 5:
+                        screen.blit(press_5, (400, 700))
                 if keys[pygame.K_g] and has_upgraded == True:
                     has_leveled_up  = False 
                 if keys[pygame.K_1] and has_upgraded == False:
@@ -1366,6 +1380,30 @@ while running == True:
                     player_max_hp+=10
                     player_hp = player_max_hp
                     has_upgraded = True
+
+                if keys[pygame.K_3] and max_fire_mana != 5 and has_upgraded == False:
+                    max_fire_mana+=1
+                    
+                    has_upgraded = True
+                    
+                    fire_mana = max_fire_mana
+
+
+                if keys[pygame.K_4] and max_water_mana != 5 and has_upgraded == False:
+                    max_water_mana+=1
+                    
+                    has_upgraded = True
+                    
+                    water_mana = max_water_mana
+
+
+                if keys[pygame.K_5] and max_grass_mana != 5 and has_upgraded == False:
+                    max_grass_mana+=1
+                    
+                    has_upgraded = True
+                    
+                    grass_mana = max_grass_mana
+
             for i in shop_on_screen:
                 i.show_guy()
 
@@ -1404,17 +1442,17 @@ while running == True:
                 #makes the enemy
                 if enemy_has_create == False and gamemode_easy == True:
                     if curr_world == "water":
-                        curr_in_battle_enemy = enemy_in_battle("water", 15, test_enemy2, 250, 10, 25, "shark", 1, 50)
+                        curr_in_battle_enemy = enemy_in_battle("water", 15, test_enemy2, 250, 20, 40, "shark", 1, 50)
                     elif curr_world == "fire":
-                        curr_in_battle_enemy = enemy_in_battle("fire",  20, test_enemy, 500, 20, 50, "dragon", 25, 50)
+                        curr_in_battle_enemy = enemy_in_battle("fire",  20, test_enemy, 500, 30, 50, "dragon", 25, 50)
                     elif curr_world == "grass1" or curr_world == "grass2" or curr_world == "grass3":
-                        curr_in_battle_enemy = enemy_in_battle("grass", 10, test_enemy3, 100, 1, 10, "goblin", 1, 25)
+                        curr_in_battle_enemy = enemy_in_battle("grass", 10, test_enemy3, 100, 10, 20, "goblin", 1, 25)
                     elif curr_world == "endlesswoods":
                         curr_in_battle_enemy = enemy_in_battle("grass", enemy_max_dam, test_enemy3, enemy_mx_hp, 1,  50, "goblin", 1, 50)
                     elif curr_world == "moutain":
-                        curr_in_battle_enemy = enemy_in_battle("grass", 13, ice_monster, 300, 20,30, "yetti", 10, 50)
+                        curr_in_battle_enemy = enemy_in_battle("grass", 13, ice_monster, 300, 20,50, "yetti", 10, 50)
                     elif curr_world == "sand":
-                        curr_in_battle_enemy = enemy_in_battle("to be determined", 12, catti_monster, 200,20, 27, "cactii", 5, 50)
+                        curr_in_battle_enemy = enemy_in_battle("to be determined", 12, catti_monster, 200,20, 35, "cactii", 5, 50)
                     elif curr_world == "destroyedtown1" or curr_world == "destroyedtown2":
                         curr_in_battle_enemy = enemy_in_battle("stone", 13, warrier, 1000, 30,50, "kinght", 30, 60)
                     elif curr_world == "castle":
@@ -1557,20 +1595,23 @@ while running == True:
                     if fire_mana == 0:
                         fire_turns -=1
                     if fire_turns == 0:
-                        fire_mana = 3
+                        fire_mana = max_fire_mana
                         fire_turns = 3
 
                     if water_mana == 0:
                         water_turns -=1
                     if water_turns == 0:
-                        water_mana = 3
+                        water_mana = max_water_mana
                         water_turns = 3
 
                     if grass_mana == 0:
                         grass_turns -=1
                     if grass_turns == 0:
-                       grass_mana = 3
-                       grass_turns = 2
+                       grass_mana = max_grass_mana
+                       if max_grass_mana == 4 or max_grass_mana == 5:
+                           grass_turns = 3
+                       else:
+                           grass_turns = 2
                 for i in player_items:
                     print("did say fornite")
                     if i.get_index() == 6:
@@ -1630,38 +1671,72 @@ while running == True:
                         grass_mana -= 1
                     has_subtacted_mana = True
                 if fire_mana == 1:
-                    screen.blit(recharge, (500, 900))
+                    screen.blit(recharge, (500-50, 900))
                     print("yess sirr")
                 if fire_mana == 2:
-                    screen.blit(recharge, (600, 900))
-                    screen.blit(recharge, (500, 900))
+                    screen.blit(recharge, (600-50, 900))
+                    screen.blit(recharge, (500-50, 900))
                     print("god tear")
                 if fire_mana == 3:
-                    screen.blit(recharge, (500, 900))
-                    screen.blit(recharge, (600, 900))
-                    screen.blit(recharge, (700, 900))
+                    screen.blit(recharge, (500-50, 900))
+                    screen.blit(recharge, (600-50, 900))
+                    screen.blit(recharge, (700-50, 900))
+                if fire_mana == 4:
+                    screen.blit(recharge, (500-50, 900))
+                    screen.blit(recharge, (600-50, 900))
+                    screen.blit(recharge, (700-50, 900))
+                    screen.blit(recharge, (800-50, 900))
+                if fire_mana == 5:
+                    screen.blit(recharge, (500-50, 900))
+                    screen.blit(recharge, (600-50, 900))
+                    screen.blit(recharge, (700-50, 900))
+                    screen.blit(recharge, (800-50, 900))
+                    screen.blit(recharge, (900-50, 900))
+
                 if water_mana == 1:
-                    screen.blit(recharge, (500, 800))
+                    screen.blit(recharge, (500-50, 800))
                     print("yess sirr")
                 if water_mana == 2:
-                    screen.blit(recharge, (600, 800))
-                    screen.blit(recharge, (500, 800))
+                    screen.blit(recharge, (600-50, 800))
+                    screen.blit(recharge, (500-50, 800))
                     print("god tear")
                 if water_mana == 3:
-                    screen.blit(recharge, (500, 800))
-                    screen.blit(recharge, (600, 800))
-                    screen.blit(recharge, (700, 800))
+                    screen.blit(recharge, (500-50, 800))
+                    screen.blit(recharge, (600-50, 800))
+                    screen.blit(recharge, (700-50, 800))
+                if water_mana == 4:
+                    screen.blit(recharge, (500-50, 800))
+                    screen.blit(recharge, (600-50, 800))
+                    screen.blit(recharge, (700-50, 800))
+                    screen.blit(recharge, (800-50, 800))
+                if water_mana == 5:
+                    screen.blit(recharge, (500-50, 800))
+                    screen.blit(recharge, (600-50, 800))
+                    screen.blit(recharge, (700-50, 800))
+                    screen.blit(recharge, (800-50, 800))
+                    screen.blit(recharge, (900-50, 800))
                 if grass_mana == 1:
-                    screen.blit(recharge, (500, 700 ))
+                    screen.blit(recharge, (500-50, 700 ))
                     print("yess sirr")
                 if grass_mana == 2:
-                    screen.blit(recharge, (600, 700))
-                    screen.blit(recharge, (500, 700))
+                    screen.blit(recharge, (600-50, 700))
+                    screen.blit(recharge, (500-50, 700))
                     print("god tear")
                 if grass_mana == 3:
-                    screen.blit(recharge, (500, 700))
-                    screen.blit(recharge, (600, 700))
-                    screen.blit(recharge, (700,700))
+                    screen.blit(recharge, (500-50, 700))
+                    screen.blit(recharge, (600-50, 700))
+                    screen.blit(recharge, (700-50,700))
+                if grass_mana == 4:
+                    screen.blit(recharge, (500-50, 700))
+                    screen.blit(recharge, (600-50, 700))
+                    screen.blit(recharge, (700-50, 700))
+                    screen.blit(recharge, (800-50, 700))
+                if grass_mana == 5:
+                    screen.blit(recharge, (500-50, 700))
+                    screen.blit(recharge, (600-50, 700))
+                    screen.blit(recharge, (700-50, 700))
+                    screen.blit(recharge, (800-50, 700))
+                    screen.blit(recharge, (900-50, 700))
 
                     print("you very sussy")
                 print(fire_mana)
@@ -1682,7 +1757,7 @@ while running == True:
                                 if i.get_index() == 7:
                                     xp_added +=10
                                 elif i.get_index() == 8:
-                                    gold_added+=10
+                                    gold_added+=50
                             xp+=xp_added
                             gold += gold_added
                             has_added = True
